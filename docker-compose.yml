@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  deno-kv-explorer:
+    build: .
+    ports:
+      - "4055:4055"
+    environment:
+      - NODE_ENV=production
+      - DENO_KV_ACCESS_TOKEN=${DENO_KV_ACCESS_TOKEN}
+      - KV_URL=${KV_URL:-http://localhost:4512}
+      - PASSWORD=${PASSWORD}
+    volumes:
+      - ./data:/app/data  # Optional: for local data persistence
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4055/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - deno-kv-explorer-network
+
+networks:
+  deno-kv-explorer-network:
+    driver: bridge
+
+volumes:
+  deno-kv-explorer-data:
+    driver: local

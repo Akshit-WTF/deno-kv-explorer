@@ -1,0 +1,32 @@
+{
+  "name": "deno-kv-explorer",
+  "version": "1.0.0",
+  "description": "A beautiful web interface for exploring and managing Deno KV databases",
+  "module": "index.ts",
+  "type": "module",
+  "private": false,
+  "bin": {
+    "deno-kv-explorer": "index.ts"
+  },
+  "keywords": ["kv", "database", "deno", "key-value", "explorer", "gui"],
+  "author": "Akshit Kumar (akshit.me)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/akshit-wtf/deno-kv-explorer"
+  },
+  "homepage": "https://github.com/akshit-wtf/deno-kv-explorer",
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@deno/kv": "^0.10.0"
+  },
+  "scripts": {
+    "start": "bun run index.ts",
+    "dev": "bun run --watch index.ts"
+  }
+}

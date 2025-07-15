@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deno KV Explorer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            primary: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              200: '#bae6fd',
+              300: '#7dd3fc',
+              400: '#38bdf8',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+              800: '#075985',
+              900: '#0c4a6e',
+              950: '#082f49'
+            }
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.3s ease-in-out',
+            'slide-in-left': 'slideInLeft 0.3s ease-out',
+            'slide-in-right': 'slideInRight 0.3s ease-out',
+            'pulse-subtle': 'pulseSubtle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': {
+                opacity: '0'
+              },
+              '100%': {
+                opacity: '1'
+              }
+            },
+            slideInLeft: {
+              '0%': {
+                transform: 'translateX(-100%)',
+                opacity: '0'
+              },
+              '100%': {
+                transform: 'translateX(0)',
+                opacity: '1'
+              }
+            },
+            slideInRight: {
+              '0%': {
+                transform: 'translateX(100%)',
+                opacity: '0'
+              },
+              '100%': {
+                transform: 'translateX(0)',
+                opacity: '1'
+              }
+            },
+            pulseSubtle: {
+              '0%, 100%': {
+                opacity: '1'
+              },
+              '50%': {
+                opacity: '0.8'
+              }
+            }
+          }
+        },
+      },
+    }
+  </script>
+  <style>
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #1e293b;
+      border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(135deg, #0ea5e9, #0284c7);
+      border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(135deg, #0284c7, #0369a1);
+    }
+
+    /* Glass morphism effect */
+    .glass {
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(56, 189, 248, 0.1);
+    }
+
+    /* Card effect */
+    .card-fold {
+      position: relative;
+    }
+
+    .card-fold::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: 0 20px 20px 0;
+      border-color: transparent #0ea5e9 transparent transparent;
+      opacity: 0.3;
+    }
+
+    /* Connection status indicator */
+    .connection-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 8px #10b981;
+      animation: pulse-subtle 2s infinite;
+    }
+
+    .connection-indicator.disconnected {
+      background: #ef4444;
+      box-shadow: 0 0 8px #ef4444;
+    }
+  </style>
+</head>
+
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-slate-200 antialiased h-screen overflow-hidden">
+
+  <!-- Password Protection Screen -->
+  <div id="auth-screen" class="fixed inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center z-50 hidden">
+    <div class="glass rounded-2xl p-8 max-w-md w-full mx-4">
+      <div class="text-center mb-8">
+        <div class="w-16 h-16 bg-gradient-to-br from-primary-400 to-primary-600 rounded-xl mx-auto mb-4 flex items-center justify-center">
+          <i class="fas fa-lock text-white text-2xl"></i>
+        </div>
+        <h1 class="text-2xl font-bold text-white mb-2">Protected Access</h1>
+        <p class="text-slate-400">Enter password to access Deno KV Explorer</p>
+      </div>
+      
+      <form id="auth-form" class="space-y-6">
+        <div>
+          <label for="password-input" class="block text-sm font-medium text-slate-300 mb-2">Password</label>
+          <div class="relative">
+            <input 
+              type="password" 
+              id="password-input" 
+              required 
+              class="w-full bg-slate-800/50 border border-slate-600/50 rounded-lg px-4 py-3 pl-12 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+              placeholder="Enter password..."
+              autocomplete="current-password"
+            >
+            <i class="fas fa-key absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
+          </div>
+        </div>
+        
+        <div id="auth-error" class="hidden">
+          <div class="bg-red-500/20 border border-red-500/50 rounded-lg p-3 flex items-center space-x-2">
+            <i class="fas fa-exclamation-triangle text-red-400"></i>
+            <span class="text-red-400 text-sm">Invalid password. Please try again.</span>
+          </div>
+        </div>
+        
+        <button 
+          type="submit" 
+          id="auth-submit"
+          class="w-full bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-center space-x-2"
+        >
+          <i class="fas fa-unlock"></i>
+          <span>Access Explorer</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Main Application (hidden during auth) -->
+  <div id="main-app" class="h-screen overflow-hidden">
+  <!-- Top Navigation Bar -->
+  <nav class="glass border-b border-primary-500/20 px-6 py-4">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center space-x-4">
+        <!-- Logo -->
+        <div class="flex items-center space-x-3">
+          <div class="relative">
+            <div class="w-10 h-10 bg-gradient-to-br from-primary-400 to-primary-600 rounded-lg card-fold flex items-center justify-center">
+              <i class="fas fa-database text-white text-lg"></i>
+            </div>
+          </div>
+          <div>
+            <h1 class="text-xl font-bold bg-gradient-to-r from-primary-400 to-primary-600 bg-clip-text text-transparent">
+              Deno KV Explorer
+            </h1>
+            <p class="text-xs text-slate-400">Key-Value Database</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-4">
+        <!-- Connection Status -->
+        <div class="flex items-center space-x-2">
+          <div id="connection-status" class="connection-indicator"></div>
+          <span class="text-sm text-slate-400">Connected</span>
+        </div>
+
+        <!-- Stats -->
+        <div class="hidden md:flex items-center space-x-6 text-sm">
+          <div class="flex items-center space-x-2">
+            <i class="fas fa-database text-primary-400"></i>
+            <span class="text-slate-400">Namespaces:</span>
+            <span id="namespace-count" class="text-white font-semibold">0</span>
+          </div>
+          <div class="flex items-center space-x-2">
+            <i class="fas fa-key text-primary-400"></i>
+            <span class="text-slate-400">Entries:</span>
+            <span id="entry-count" class="text-white font-semibold">0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div id="app" class="flex overflow-hidden" style="height: calc(100vh - 80px);">
+    <!-- Sidebar for Namespaces -->
+    <aside class="w-80 glass border-r border-primary-500/20 flex flex-col animate-slide-in-left lg:w-80 md:w-72 sm:w-64 hidden md:flex overflow-hidden">
+      <!-- Sidebar Header -->
+      <div class="p-6 border-b border-slate-700/50 flex-shrink-0">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-semibold text-white flex items-center">
+            <i class="fas fa-folder-tree text-primary-400 mr-2"></i>
+            Namespaces
+          </h2>
+          <button id="refresh-btn" class="p-2 hover:bg-slate-700/50 rounded-lg transition-colors" title="Refresh">
+            <i class="fas fa-sync-alt text-slate-400 hover:text-white"></i>
+          </button>
+        </div>
+
+        <!-- Create Namespace -->
+        <div class="relative">
+          <input type="text" id="new-namespace-input" placeholder="New namespace..." class="w-full bg-slate-800/50 border border-slate-600/50 rounded-lg px-4 py-3 pr-20 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all">
+          <button id="create-namespace-btn" class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-primary-600 hover:bg-primary-700 text-white px-3 py-1.5 rounded text-xs font-medium transition-colors whitespace-nowrap">
+            <i class="fas fa-plus mr-1"></i>Create
+          </button>
+        </div>
+      </div>
+
+      <!-- Namespace List -->
+      <div class="flex-1 overflow-y-auto p-4">
+        <nav id="namespace-list" class="space-y-2">
+          <!-- Namespaces will be dynamically inserted here -->
+          <div class="text-center text-slate-500 py-8 animate-pulse">
+            <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+            <p>Loading namespaces...</p>
+          </div>
+        </nav>
+      </div>
+    </aside>
+
+    <!-- Mobile Sidebar Toggle -->
+    <div class="md:hidden fixed top-4 left-4 z-50">
+      <button id="mobile-sidebar-toggle" class="glass p-3 rounded-lg">
+        <i class="fas fa-bars text-white"></i>
+      </button>
+    </div>
+
+    <!-- Mobile Sidebar Overlay -->
+    <div id="mobile-sidebar-overlay" class="md:hidden fixed inset-0 bg-black/50 z-40 hidden">
+      <aside class="w-80 glass h-full flex flex-col animate-slide-in-left overflow-hidden">
+        <!-- Sidebar Header -->
+        <div class="p-6 border-b border-slate-700/50 flex-shrink-0">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold text-white flex items-center">
+              <i class="fas fa-folder-tree text-primary-400 mr-2"></i>
+              Namespaces
+            </h2>
+            <button id="mobile-sidebar-close" class="p-2 hover:bg-slate-700/50 rounded-lg transition-colors">
+              <i class="fas fa-times text-slate-400 hover:text-white"></i>
+            </button>
+          </div>
+
+          <!-- Create Namespace -->
+          <div class="relative">
+            <input type="text" id="new-namespace-input-mobile" placeholder="New namespace..." class="w-full bg-slate-800/50 border border-slate-600/50 rounded-lg px-4 py-3 pr-20 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all">
+            <button id="create-namespace-btn-mobile" class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-primary-600 hover:bg-primary-700 text-white px-3 py-1.5 rounded text-xs font-medium transition-colors whitespace-nowrap">
+              <i class="fas fa-plus mr-1"></i>Create
+            </button>
+          </div>
+        </div>
+
+        <!-- Namespace List -->
+        <div class="flex-1 overflow-y-auto p-4">
+          <nav id="namespace-list-mobile" class="space-y-2">
+            <!-- Namespaces will be dynamically inserted here -->
+          </nav>
+        </div>
+      </aside>
+    </div>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col animate-slide-in-right overflow-hidden">
+      <!-- Main Header -->
+      <header class="p-6 border-b border-slate-700/50 bg-slate-900/50 sticky top-0 z-20 backdrop-blur-sm flex-shrink-0">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <div class="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-700 rounded-lg flex items-center justify-center">
+              <i class="fas fa-database text-white text-sm"></i>
+            </div>
+            <div>
+              <h2 class="text-xl font-bold text-white">
+                <span id="current-namespace-display" class="text-primary-400">default</span>
+              </h2>
+              <p class="text-sm text-slate-400">Key-Value entries in this namespace</p>
+            </div>
+          </div>
+
+          <div class="flex items-center space-x-3">
+            <button id="export-btn" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-sm font-medium transition-colors flex items-center space-x-2">
+              <i class="fas fa-download"></i>
+              <span>Export</span>
+            </button>
+            <button id="import-btn" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-sm font-medium transition-colors flex items-center space-x-2">
+              <i class="fas fa-upload"></i>
+              <span>Import</span>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <!-- Scrollable Content Area -->
+      <div class="flex-1 overflow-y-auto">
+        <!-- Add Item Form -->
+        <div class="p-6 border-b border-slate-700/50 flex-shrink-0">
+          <div class="glass rounded-xl p-6 card-fold">
+            <h3 class="text-lg font-semibold text-white mb-6 flex items-center">
+              <i class="fas fa-plus-circle text-primary-400 mr-2"></i>
+              Add New Entry
+            </h3>
+            <form id="add-item-form" class="space-y-4">
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Key Input -->
+                <div class="space-y-2">
+                  <label for="key-input" class="block text-sm font-medium text-slate-300">Key</label>
+                  <div class="relative">
+                    <input type="text" id="key-input" required class="w-full bg-slate-800/50 border border-slate-600/50 rounded-lg px-4 py-3 pl-12 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" placeholder="Enter key name...">
+                    <i class="fas fa-key absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
+                  </div>
+                </div>
+
+                <!-- Value Input -->
+                <div class="space-y-2">
+                  <label for="value-input" class="block text-sm font-medium text-slate-300">Value (JSON)</label>
+                  <div class="relative">
+                    <textarea id="value-input" required rows="4" class="w-full bg-slate-800/50 border border-slate-600/50 rounded-lg px-4 py-3 pl-12 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all resize-y min-h-[100px]" placeholder='{"example": "value", "number": 123, "array": [1, 2, 3]}'></textarea>
+                    <i class="fas fa-code absolute left-4 top-4 text-slate-400"></i>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Submit Button -->
+              <div class="flex justify-end pt-2">
+                <button type="submit" class="bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-semibold py-3 px-8 rounded-lg transition-all duration-200 transform hover:scale-105 flex items-center space-x-2 shadow-lg shadow-primary-500/25">
+                  <i class="fas fa-save"></i>
+                  <span>Add Entry</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Item List -->
+        <div class="p-6">
+          <div class="glass rounded-xl card-fold">
+            <!-- Entries Header -->
+            <div class="p-6 border-b border-slate-700/50">
+              <div class="flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-white flex items-center">
+                  <i class="fas fa-list text-primary-400 mr-2"></i>
+                  Entries
+                </h3>
+                <div class="flex items-center space-x-3">
+                  <div class="relative">
+                    <input type="text" id="search-input" placeholder="Search entries..." class="bg-slate-800/50 border border-slate-600/50 rounded-lg px-4 py-2 pl-10 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all w-48 lg:w-64">
+                    <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
+                  </div>
+                  <select id="sort-select" class="bg-slate-800/50 border border-slate-600/50 rounded-lg px-4 py-2 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500">
+                    <option value="key-asc">Key (A-Z)</option>
+                    <option value="key-desc">Key (Z-A)</option>
+                    <option value="created-desc">Newest First</option>
+                    <option value="created-asc">Oldest First</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Entries List -->
+            <div id="item-list" class="p-6 space-y-4">
+              <!-- Items will be dynamically inserted here -->
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- End Scrollable Content Area -->
+    </main>
+  </div>
+
+  <!-- Toast Notifications -->
+  <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
+  </div>
+  <!-- End Main Application -->
+
+  <script>
+    // Authentication Logic
+    let sessionId = null;
+    let requiresPassword = false;
+    
+    // Check if password is required and handle authentication
+    async function checkAuth() {
+      try {
+        const response = await fetch('/auth', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: '' }) // Empty password to check if auth is required
+        });
+        
+        const data = await response.json();
+        requiresPassword = data.requiresPassword !== false; // Default to true if not specified
+        
+        if (!requiresPassword) {
+          // No password required, show main app
+          document.getElementById('auth-screen').classList.add('hidden');
+          document.getElementById('main-app').classList.remove('hidden');
+          initializeApp();
+        } else {
+          // Password required, show auth screen
+          document.getElementById('auth-screen').classList.remove('hidden');
+          document.getElementById('main-app').classList.add('hidden');
+          document.getElementById('password-input').focus();
+        }
+      } catch (error) {
+        console.error('Auth check failed:', error);
+        // Assume password is required on error
+        requiresPassword = true;
+        document.getElementById('auth-screen').classList.remove('hidden');
+        document.getElementById('main-app').classList.add('hidden');
+      }
+    }
+    
+    // Handle authentication form submission
+    document.getElementById('auth-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const password = document.getElementById('password-input').value;
+      const submitBtn = document.getElementById('auth-submit');
+      const errorDiv = document.getElementById('auth-error');
+      
+      // Show loading state
+      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Authenticating...</span>';
+      submitBtn.disabled = true;
+      errorDiv.classList.add('hidden');
+      
+      try {
+        const response = await fetch('/auth', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          sessionId = data.sessionId;
+          // Hide auth screen and show main app
+          document.getElementById('auth-screen').classList.add('hidden');
+          document.getElementById('main-app').classList.remove('hidden');
+          initializeApp();
+        } else {
+          // Show error
+          errorDiv.classList.remove('hidden');
+          document.getElementById('password-input').value = '';
+          document.getElementById('password-input').focus();
+        }
+      } catch (error) {
+        console.error('Authentication failed:', error);
+        errorDiv.classList.remove('hidden');
+      } finally {
+        // Reset button state
+        submitBtn.innerHTML = '<i class="fas fa-unlock"></i><span>Access Explorer</span>';
+        submitBtn.disabled = false;
+      }
+    });
+    
+    // Initialize the main application
+    function initializeApp() {
+      // Initialize WebSocket and other app logic
+      initWebSocket();
+    }
+    
+    // Call auth check on page load
+    checkAuth();
+    
+    // WebSocket initialization (moved into function)
+    let ws;
+    
+    function initWebSocket() {
+      const wsUrl = `ws://${window.location.host}/ws${sessionId ? `?session=${sessionId}` : ''}`;
+      ws = new WebSocket(wsUrl);
+      
+      // Rest of the WebSocket logic will go here
+      setupWebSocketHandlers();
+    }
+    
+    function setupWebSocketHandlers() {
+    // State
+    let currentState = {
+      namespaces: [],
+      entries: [],
+      currentNamespace: 'default',
+      filteredEntries: [],
+      searchTerm: '',
+      sortBy: 'key-asc',
+      namespaceCounts: {}
+    };
+
+    // DOM Elements
+    const namespaceListEl = document.getElementById('namespace-list');
+    const namespaceListMobileEl = document.getElementById('namespace-list-mobile');
+    const newNamespaceInputEl = document.getElementById('new-namespace-input');
+    const newNamespaceInputMobileEl = document.getElementById('new-namespace-input-mobile');
+    const createNamespaceBtnEl = document.getElementById('create-namespace-btn');
+    const createNamespaceBtnMobileEl = document.getElementById('create-namespace-btn-mobile');
+    const currentNamespaceDisplayEl = document.getElementById('current-namespace-display');
+    const itemListEl = document.getElementById('item-list');
+    const addItemFormEl = document.getElementById('add-item-form');
+    const keyInputEl = document.getElementById('key-input');
+    const valueInputEl = document.getElementById('value-input');
+    const searchInputEl = document.getElementById('search-input');
+    const sortSelectEl = document.getElementById('sort-select');
+    const connectionStatusEl = document.getElementById('connection-status');
+    const namespaceCountEl = document.getElementById('namespace-count');
+    const entryCountEl = document.getElementById('entry-count');
+    const refreshBtnEl = document.getElementById('refresh-btn');
+    const exportBtnEl = document.getElementById('export-btn');
+    const importBtnEl = document.getElementById('import-btn');
+    const mobileSidebarToggleEl = document.getElementById('mobile-sidebar-toggle');
+    const mobileSidebarOverlayEl = document.getElementById('mobile-sidebar-overlay');
+    const mobileSidebarCloseEl = document.getElementById('mobile-sidebar-close');
+
+    // Debug: Check if elements are found
+    console.log('Desktop create namespace button:', createNamespaceBtnEl);
+    console.log('Mobile create namespace button:', createNamespaceBtnMobileEl);
+    console.log('Desktop namespace input:', newNamespaceInputEl);
+    console.log('Mobile namespace input:', newNamespaceInputMobileEl);
+
+    // Toast notification system
+    function showToast(message, type = 'info') {
+      const toast = document.createElement('div');
+      const icons = {
+        success: 'fas fa-check-circle',
+        error: 'fas fa-exclamation-triangle',
+        warning: 'fas fa-exclamation-circle',
+        info: 'fas fa-info-circle'
+      };
+      const colors = {
+        success: 'from-green-500 to-green-600',
+        error: 'from-red-500 to-red-600',
+        warning: 'from-yellow-500 to-yellow-600',
+        info: 'from-blue-500 to-blue-600'
+      };
+
+      toast.className = `glass rounded-lg p-4 text-white transform transition-all duration-300 translate-x-full opacity-0 flex items-center space-x-3 max-w-sm`;
+      toast.innerHTML = `
+        <div class="w-8 h-8 bg-gradient-to-r ${colors[type]} rounded-full flex items-center justify-center flex-shrink-0">
+          <i class="${icons[type]} text-sm"></i>
+        </div>
+        <div class="flex-1">
+          <p class="text-sm font-medium">${message}</p>
+        </div>
+        <button class="text-slate-400 hover:text-white transition-colors">
+          <i class="fas fa-times"></i>
+        </button>
+      `;
+
+      document.getElementById('toast-container').appendChild(toast);
+
+      // Animate in
+      setTimeout(() => {
+        toast.classList.remove('translate-x-full', 'opacity-0');
+      }, 100);
+
+      // Auto remove after 5 seconds
+      setTimeout(() => {
+        toast.classList.add('translate-x-full', 'opacity-0');
+        setTimeout(() => toast.remove(), 300);
+      }, 5000);
+
+      // Manual close
+      toast.querySelector('button').onclick = () => {
+        toast.classList.add('translate-x-full', 'opacity-0');
+        setTimeout(() => toast.remove(), 300);
+      };
+    }
+
+    // WebSocket Logic
+    ws.onopen = () => {
+      console.log('Connected to Deno KV WebSocket server');
+      connectionStatusEl.classList.remove('disconnected');
+      showToast('Connected to Deno KV server', 'success');
+
+      // Request namespace counts on connection
+      ws.send(JSON.stringify({
+        type: 'get-namespace-counts',
+        payload: {}
+      }));
+    };
+
+    ws.onclose = () => {
+      connectionStatusEl.classList.add('disconnected');
+      showToast('Connection lost. Please refresh the page.', 'error');
+      setTimeout(() => {
+        document.body.innerHTML = `
+          <div class="h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800 text-center">
+            <div class="glass rounded-2xl p-8 max-w-md">
+              <div class="w-16 h-16 bg-gradient-to-br from-red-500 to-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-wifi text-white text-2xl"></i>
+              </div>
+              <h2 class="text-xl font-bold text-white mb-2">Connection Lost</h2>
+              <p class="text-slate-400 mb-6">Unable to connect to Deno KV server</p>
+              <button onclick="window.location.reload()" class="bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white px-6 py-3 rounded-lg font-medium transition-all">
+                Retry Connection
+              </button>
+            </div>
+          </div>
+        `;
+      }, 3000);
+    };
+
+    ws.onerror = (error) => {
+      console.error('WebSocket error:', error);
+      showToast('WebSocket connection error', 'error');
+    };
+
+    ws.onmessage = (event) => {
+      const {
+        type,
+        payload
+      } = JSON.parse(event.data);
+
+      switch (type) {
+        case 'initial-data':
+        case 'namespace-data':
+          currentState.namespaces = payload.namespaces;
+          currentState.entries = payload.entries;
+          applyFiltersAndSort();
+          render();
+          break;
+        case 'namespace-counts':
+          currentState.namespaces = payload.namespaces;
+          currentState.namespaceCounts = payload.counts;
+          render();
+          break;
+        case 'update':
+          // If the update is for the current namespace, re-render
+          if (payload.updatedNamespace === currentState.currentNamespace) {
+            currentState.entries = payload.entries;
+            applyFiltersAndSort();
+          }
+          // Always update namespace list in case a new one was created
+          currentState.namespaces = payload.namespaces;
+          render();
+          showToast(`Namespace "${payload.updatedNamespace}" updated`, 'success');
+
+          // Refresh namespace counts
+          ws.send(JSON.stringify({
+            type: 'get-namespace-counts',
+            payload: {}
+          }));
+          break;
+        case 'error':
+          showToast(`Server Error: ${payload.message}`, 'error');
+          break;
+      }
+    };
+
+    // Search and filter functionality
+    function applyFiltersAndSort() {
+      let filtered = [...currentState.entries];
+
+      // Filter out placeholder entries
+      filtered = filtered.filter(entry => !entry.key[1].startsWith('_deno_kv_placeholder'));
+
+      // Apply search filter
+      if (currentState.searchTerm) {
+        const term = currentState.searchTerm.toLowerCase();
+        filtered = filtered.filter(entry =>
+          entry.key[1].toLowerCase().includes(term) ||
+          JSON.stringify(entry.value).toLowerCase().includes(term)
+        );
+      }
+
+      // Apply sorting
+      filtered.sort((a, b) => {
+        const keyA = a.key[1];
+        const keyB = b.key[1];
+
+        switch (currentState.sortBy) {
+          case 'key-asc':
+            return keyA.localeCompare(keyB);
+          case 'key-desc':
+            return keyB.localeCompare(keyA);
+          case 'created-desc':
+            return (b.versionstamp || '').localeCompare(a.versionstamp || '');
+          case 'created-asc':
+            return (a.versionstamp || '').localeCompare(b.versionstamp || '');
+          default:
+            return 0;
+        }
+      });
+
+      currentState.filteredEntries = filtered;
+    }
+
+    // Event Listeners
+    newNamespaceInputEl.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        createNamespace();
+      }
+    });
+
+    newNamespaceInputMobileEl.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        createNamespace(true);
+      }
+    });
+
+    createNamespaceBtnEl.addEventListener('click', () => {
+      console.log('Desktop create namespace button clicked');
+      createNamespace();
+    });
+    createNamespaceBtnMobileEl.addEventListener('click', () => {
+      console.log('Mobile create namespace button clicked');
+      createNamespace(true);
+    });
+
+    function createNamespace(isMobile = false) {
+      const input = isMobile ? newNamespaceInputMobileEl : newNamespaceInputEl;
+      const newNamespace = input.value.trim();
+      if (newNamespace && !currentState.namespaces.includes(newNamespace)) {
+        ws.send(JSON.stringify({
+          type: 'create-namespace',
+          payload: {
+            namespace: newNamespace
+          }
+        }));
+        input.value = '';
+        showToast(`Creating namespace "${newNamespace}"`, 'info');
+        if (isMobile) {
+          closeMobileSidebar();
+        }
+      } else if (currentState.namespaces.includes(newNamespace)) {
+        showToast('Namespace already exists', 'warning');
+      }
+    }
+
+    // Mobile sidebar functionality
+    mobileSidebarToggleEl.addEventListener('click', openMobileSidebar);
+    mobileSidebarCloseEl.addEventListener('click', closeMobileSidebar);
+    mobileSidebarOverlayEl.addEventListener('click', (e) => {
+      if (e.target === mobileSidebarOverlayEl) {
+        closeMobileSidebar();
+      }
+    });
+
+    function openMobileSidebar() {
+      mobileSidebarOverlayEl.classList.remove('hidden');
+      // Update mobile namespace list
+      renderNamespaces(true);
+    }
+
+    function closeMobileSidebar() {
+      mobileSidebarOverlayEl.classList.add('hidden');
+    }
+
+    // Export/Import functionality
+    exportBtnEl.addEventListener('click', exportData);
+    importBtnEl.addEventListener('click', () => {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.json';
+      input.onchange = importData;
+      input.click();
+    });
+
+    function exportData() {
+      const data = {
+        namespace: currentState.currentNamespace,
+        entries: currentState.entries.filter(entry => !entry.key[1].startsWith('_deno_kv_placeholder')),
+        exportDate: new Date().toISOString(),
+        version: '1.0.0'
+      };
+
+      const blob = new Blob([JSON.stringify(data, null, 2)], {
+        type: 'application/json'
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `deno-kv-${currentState.currentNamespace}-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      showToast(`Exported ${data.entries.length} entries from "${currentState.currentNamespace}"`, 'success');
+    }
+
+    function importData(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const data = JSON.parse(e.target.result);
+
+          if (!data.entries || !Array.isArray(data.entries)) {
+            throw new Error('Invalid file format');
+          }
+
+          let imported = 0;
+          const promises = data.entries.map(entry => {
+            return new Promise((resolve) => {
+              ws.send(JSON.stringify({
+                type: 'add-item',
+                payload: {
+                  namespace: currentState.currentNamespace,
+                  key: entry.key[1],
+                  value: entry.value
+                }
+              }));
+              imported++;
+              resolve();
+            });
+          });
+
+          Promise.all(promises).then(() => {
+            showToast(`Imported ${imported} entries into "${currentState.currentNamespace}"`, 'success');
+          });
+
+        } catch (error) {
+          showToast('Error importing file: Invalid format', 'error');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    addItemFormEl.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const key = keyInputEl.value.trim();
+      let value;
+
+      try {
+        // Attempt to parse value as JSON
+        value = JSON.parse(valueInputEl.value.trim());
+      } catch (err) {
+        // If it fails, treat it as a string
+        value = valueInputEl.value.trim();
+      }
+
+      if (key && value !== undefined) {
+        ws.send(JSON.stringify({
+          type: 'add-item',
+          payload: {
+            namespace: currentState.currentNamespace,
+            key,
+            value
+          }
+        }));
+        keyInputEl.value = '';
+        valueInputEl.value = '';
+        showToast(`Adding entry "${key}"`, 'info');
+      }
+    });
+
+    searchInputEl.addEventListener('input', (e) => {
+      currentState.searchTerm = e.target.value;
+      applyFiltersAndSort();
+      renderEntries();
+    });
+
+    sortSelectEl.addEventListener('change', (e) => {
+      currentState.sortBy = e.target.value;
+      applyFiltersAndSort();
+      renderEntries();
+    });
+
+    refreshBtnEl.addEventListener('click', () => {
+      ws.send(JSON.stringify({
+        type: 'get-namespace-data',
+        payload: {
+          namespace: currentState.currentNamespace
+        }
+      }));
+      showToast('Refreshing data...', 'info');
+    });
+
+    // Core Functions
+    function switchNamespace(namespace) {
+      currentState.currentNamespace = namespace;
+      currentState.searchTerm = '';
+      searchInputEl.value = '';
+      ws.send(JSON.stringify({
+        type: 'get-namespace-data',
+        payload: {
+          namespace
+        }
+      }));
+      render(); // Render immediately to update the active state
+      closeMobileSidebar(); // Close mobile sidebar after selection
+    }
+
+    // Render Functions
+    function render() {
+      renderNamespaces();
+      renderNamespaces(true); // Also render mobile version
+      renderEntries();
+      updateStats();
+      currentNamespaceDisplayEl.textContent = currentState.currentNamespace;
+    }
+
+    function updateStats() {
+      namespaceCountEl.textContent = currentState.namespaces.length;
+      entryCountEl.textContent = currentState.filteredEntries.length;
+    }
+
+    function renderNamespaces(isMobile = false) {
+      const targetEl = isMobile ? namespaceListMobileEl : namespaceListEl;
+      targetEl.innerHTML = '';
+
+      if (currentState.namespaces.length === 0) {
+        currentState.namespaces.push('default'); // Ensure default is always an option
+      }
+
+      currentState.namespaces.sort().forEach(ns => {
+        const isActive = ns === currentState.currentNamespace;
+        const button = document.createElement('button');
+
+        button.className = `w-full text-left px-4 py-3 rounded-lg text-sm transition-all duration-200 flex items-center space-x-3 group ${
+          isActive 
+            ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-lg shadow-primary-500/25' 
+            : 'hover:bg-slate-700/50 text-slate-300 hover:text-white'
+        }`;
+
+        // Get entry count from namespaceCounts or current entries if active
+        const entryCount = isActive ?
+          currentState.entries.filter(entry => !entry.key[1].startsWith('_deno_kv_placeholder')).length :
+          (currentState.namespaceCounts[ns] || 0);
+
+        button.innerHTML = `
+          <div class="w-8 h-8 ${isActive ? 'bg-white/20' : 'bg-slate-600/50 group-hover:bg-slate-500/50'} rounded-lg flex items-center justify-center transition-colors">
+            <i class="fas fa-folder text-sm ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-slate-300'}"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="font-medium truncate">${ns}</div>
+            <div class="text-xs ${isActive ? 'text-white/70' : 'text-slate-500 group-hover:text-slate-400'}">
+              ${entryCount} ${entryCount === 1 ? 'entry' : 'entries'}
+            </div>
+          </div>
+          ${isActive ? '<i class="fas fa-chevron-right text-white/70"></i>' : ''}
+        `;
+
+        button.onclick = () => switchNamespace(ns);
+        targetEl.appendChild(button);
+      });
+    }
+
+    function renderEntries() {
+      itemListEl.innerHTML = '';
+
+      if (currentState.filteredEntries.length === 0) {
+        const emptyState = document.createElement('div');
+        emptyState.className = 'text-center py-12';
+        emptyState.innerHTML = `
+          <div class="w-16 h-16 bg-slate-700/50 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-database text-slate-400 text-2xl"></i>
+          </div>
+          <h3 class="text-lg font-medium text-white mb-2">No entries found</h3>
+          <p class="text-slate-400 mb-6">
+            ${currentState.searchTerm ? 'Try adjusting your search terms' : 'Add your first key-value entry to get started'}
+          </p>
+          ${!currentState.searchTerm ? `
+            <button onclick="document.getElementById('key-input').focus()" class="bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white px-6 py-3 rounded-lg font-medium transition-all inline-flex items-center space-x-2">
+              <i class="fas fa-plus"></i>
+              <span>Add First Entry</span>
+            </button>
+          ` : ''}
+        `;
+        itemListEl.appendChild(emptyState);
+        return;
+      }
+
+      currentState.filteredEntries.forEach((item, index) => {
+        const div = document.createElement('div');
+        div.className = 'glass rounded-lg p-6 card-fold hover:bg-slate-700/30 transition-all duration-200 animate-fade-in border border-slate-600/30';
+        div.style.animationDelay = `${index * 50}ms`;
+
+        const keyText = item.key[1];
+        const valueText = JSON.stringify(item.value, null, 2);
+        const isLongValue = valueText.length > 200;
+
+        div.innerHTML = `
+          <div class="space-y-4">
+            <!-- Header with Key Info -->          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3 flex-1 min-w-0">
+              <div class="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-700 rounded-lg flex items-center justify-center flex-shrink-0">
+                <i class="fas fa-key text-white text-sm"></i>
+              </div>                <div class="flex-1 min-w-0">
+                  <h4 class="font-semibold text-white truncate text-lg">${keyText}</h4>
+                  <p class="text-xs text-slate-400">
+                    ${item.versionstamp ? `Version: ${item.versionstamp.slice(0, 8)}...` : 'No version info'}
+                  </p>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="flex items-center space-x-2 flex-shrink-0 ml-4">
+              <button class="copy-btn p-2 bg-slate-600/50 hover:bg-slate-500 text-slate-300 hover:text-white rounded-lg transition-colors" data-value='${valueText}' title="Copy value">
+                <i class="fas fa-copy text-sm"></i>
+              </button>
+              <button class="edit-btn px-2 sm:px-3 py-2 bg-blue-600/80 hover:bg-blue-600 text-white rounded-lg text-sm font-medium transition-colors flex items-center space-x-1" data-key="${keyText}" data-value='${valueText}'>
+                <i class="fas fa-edit text-xs"></i>
+                <span class="hidden sm:inline">Edit</span>
+              </button>
+              <button class="delete-btn px-2 sm:px-3 py-2 bg-red-600/80 hover:bg-red-600 text-white rounded-lg text-sm font-medium transition-colors flex items-center space-x-1" data-key="${keyText}">
+                <i class="fas fa-trash text-xs"></i>
+                <span class="hidden sm:inline">Delete</span>
+              </button>
+            </div>
+          </div>
+            
+            <!-- Value Display -->
+            <div class="bg-slate-800/60 rounded-lg border border-slate-600/40">
+              <div class="flex items-center justify-between px-4 py-2 border-b border-slate-600/40">
+                <span class="text-xs font-medium text-slate-400 uppercase tracking-wide">Value</span>
+                <div class="flex items-center space-x-2">
+                  <span class="text-xs px-2 py-1 bg-slate-700/50 rounded text-slate-300">${typeof item.value}</span>
+                  ${isLongValue ? `
+                    <button class="expand-btn text-xs text-primary-400 hover:text-primary-300 transition-colors">
+                      <i class="fas fa-expand-alt mr-1"></i>Expand
+                    </button>
+                  ` : ''}
+                </div>
+              </div>
+              <div class="p-4">
+                <pre class="text-sm text-slate-200 overflow-x-auto whitespace-pre-wrap break-words ${isLongValue ? 'max-h-32 overflow-y-auto' : ''} leading-relaxed">${isLongValue ? valueText.slice(0, 200) + '...' : valueText}</pre>
+              </div>
+            </div>
+          </div>
+        `;
+
+        // Add event listeners
+        div.querySelector('.delete-btn').onclick = () => {
+          if (confirm(`Delete key "${keyText}" from namespace "${currentState.currentNamespace}"?`)) {
+            ws.send(JSON.stringify({
+              type: 'delete-item',
+              payload: {
+                namespace: currentState.currentNamespace,
+                key: keyText
+              }
+            }));
+          }
+        };
+
+        div.querySelector('.edit-btn').onclick = () => {
+          keyInputEl.value = keyText;
+          valueInputEl.value = valueText;
+          keyInputEl.focus();
+          keyInputEl.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+          });
+        };
+
+        div.querySelector('.copy-btn').onclick = (e) => {
+          navigator.clipboard.writeText(e.target.closest('.copy-btn').dataset.value);
+          showToast('Value copied to clipboard', 'success');
+        };
+
+        const expandBtn = div.querySelector('.expand-btn');
+        if (expandBtn) {
+          expandBtn.onclick = () => {
+            const pre = div.querySelector('pre');
+            if (pre.classList.contains('max-h-32')) {
+              pre.classList.remove('max-h-32', 'overflow-y-auto');
+              pre.textContent = valueText;
+              expandBtn.innerHTML = '<i class="fas fa-compress-alt mr-1"></i>Collapse';
+            } else {
+              pre.classList.add('max-h-32', 'overflow-y-auto');
+              pre.textContent = valueText.slice(0, 200) + '...';
+              expandBtn.innerHTML = '<i class="fas fa-expand-alt mr-1"></i>Expand';
+            }
+          };
+        }
+
+        itemListEl.appendChild(div);
+      });
+    }
+    } // End setupWebSocketHandlers function
+  </script>
+</body>
+
+</html>
