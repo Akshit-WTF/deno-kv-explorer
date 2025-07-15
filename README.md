@@ -23,7 +23,23 @@
 - 🎯 **Intuitive UX** - Clean, modern interface with helpful visual feedback
 - 🔧 **Developer Friendly** - Built with TypeScript and modern web technologies
 
-## 🚀 Quick Start
+## � Screenshots
+
+<div align="center">
+
+### 🔐 Secure Login Screen
+<img src="assets/login.png" alt="Deno KV Explorer Login" width="600" />
+
+*Optional password protection with session-based authentication*
+
+### 🗄️ Main Interface
+<img src="assets/explorer.png" alt="Deno KV Explorer Main Interface" width="600" />
+
+*Clean, modern interface for managing your Deno KV database*
+
+</div>
+
+## �🚀 Quick Start
 
 ### Prerequisites
 
@@ -32,17 +48,32 @@
 
 ### Installation
 
-#### Option 1: Using bunx (Recommended)
+#### Option 1: Using bunx/npx (Recommended)
 
 ```bash
-# Run directly without installation
+# Run directly without installation (from npm)
 bunx deno-kv-explorer
+# OR
+npx deno-kv-explorer
 
 # With environment variables
 KV_URL=http://localhost:4512 PASSWORD=mysecret bunx deno-kv-explorer
 ```
 
-#### Option 2: Local Development
+#### Option 2: Install Globally
+
+```bash
+# Install from npm
+npm install -g deno-kv-explorer
+
+# Then run
+deno-kv-explorer
+
+# Or with environment variables
+KV_URL=http://localhost:4512 PASSWORD=mysecret deno-kv-explorer
+```
+
+#### Option 3: Local Development
 
 ```bash
 # Clone the repository
@@ -57,18 +88,19 @@ cp .env.example .env
 # Edit .env with your settings
 ```
 
-#### Option 3: Docker (Recommended for Production)
+#### Option 4: Docker (Recommended for Production)
 
 ```bash
-# Clone the repository
+# Using pre-built image from GitHub Container Registry
+docker run -p 4055:4055 \
+  -e KV_URL=your_kv_url \
+  -e PASSWORD=your_password \
+  ghcr.io/akshit-wtf/deno-kv-explorer:latest
+
+# Or with docker-compose
 git clone https://github.com/akshit-wtf/deno-kv-explorer
 cd deno-kv-explorer
-
-# Install dependencies
-bun install
-# Edit .env with your Deno KV credentials
-
-# Run with Docker Compose
+# Edit .env with your settings
 docker-compose up -d
 ```
 
@@ -236,6 +268,54 @@ To run multiple instances:
 docker-compose up -d --scale deno-kv-explorer=3
 ```
 
+## 📦 npm Package
+
+This project is published to [npm](https://www.npmjs.com/package/deno-kv-explorer) for easy installation and distribution.
+
+### Installing from npm
+
+The package is available as a public npm package:
+
+```bash
+# No special configuration needed for public npm packages
+# Install globally
+npm install -g deno-kv-explorer
+
+# Or run directly
+npx deno-kv-explorer
+bunx deno-kv-explorer
+```
+
+### Publishing
+
+Publishing is automated via GitHub Actions when a release is created:
+
+1. **Create a release** on GitHub with a version tag (e.g., `v1.0.1`)
+2. **GitHub Actions** automatically builds and publishes to npm
+3. **Docker images** are also built and pushed to GitHub Container Registry
+
+For manual publishing:
+
+```bash
+# Ensure you're authenticated with npm
+npm login
+
+# Publish
+npm publish
+```
+
+### Docker Images
+
+Docker images are available from GitHub Container Registry:
+
+```bash
+# Pull the latest image
+docker pull ghcr.io/akshit-wtf/deno-kv-explorer:latest
+
+# Run the container
+docker run -p 4055:4055 ghcr.io/akshit-wtf/deno-kv-explorer:latest
+```
+
 ## 📦 Project Structure
 
 ```
@@ -259,6 +339,19 @@ Deno KV Explorer follows the principles of **simplicity and functionality**:
 - **Precision**: Carefully crafted user experience
 - **Elegance**: Beautiful visual design with subtle animations
 - **Functionality**: Every feature serves a clear purpose
+
+## 🎨 Gallery
+
+<div align="center">
+
+| Feature | Preview |
+|---------|---------|
+| **🔐 Secure Access** | <img src="assets/login.png" alt="Login Screen" width="400" /> |
+| **🗂️ Database Management** | <img src="assets/explorer.png" alt="Main Interface" width="400" /> |
+
+*Experience the modern, intuitive interface designed for productivity*
+
+</div>
 
 ## 🤝 Contributing
 

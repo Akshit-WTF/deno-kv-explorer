@@ -5,17 +5,34 @@
   "module": "index.ts",
   "type": "module",
   "private": false,
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org"
+  },
   "bin": {
     "deno-kv-explorer": "index.ts"
   },
-  "keywords": ["kv", "database", "deno", "key-value", "explorer", "gui"],
+  "files": [
+    "index.ts",
+    "index.html",
+    "README.md",
+    "LICENSE",
+    "assets/"
+  ],
+  "engines": {
+    "node": ">=18.0.0",
+    "bun": ">=1.0.0"
+  },
+  "keywords": ["kv", "database", "deno", "key-value", "explorer", "gui", "web-interface", "management"],
   "author": "Akshit Kumar (akshit.me)",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/akshit-wtf/deno-kv-explorer"
+    "url": "git+https://github.com/akshit-wtf/deno-kv-explorer.git"
   },
-  "homepage": "https://github.com/akshit-wtf/deno-kv-explorer",
+  "bugs": {
+    "url": "https://github.com/akshit-wtf/deno-kv-explorer/issues"
+  },
+  "homepage": "https://github.com/akshit-wtf/deno-kv-explorer#readme",
   "devDependencies": {
     "@types/bun": "latest"
   },
@@ -27,6 +44,10 @@
   },
   "scripts": {
     "start": "bun run index.ts",
-    "dev": "bun run --watch index.ts"
+    "dev": "bun run --watch index.ts",
+    "build": "echo 'No build step required for this project'",
+    "test": "echo 'No tests specified'",
+    "prepublishOnly": "echo 'Publishing to npm registry...'",
+    "release": "npm version patch && git push && git push --tags"
   }
 }

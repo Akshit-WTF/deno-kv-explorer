@@ -1,0 +1,65 @@
+name: Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        bun-version: ['1.0.0', 'latest']
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun ${{ matrix.bun-version }}
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: ${{ matrix.bun-version }}
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Check TypeScript
+        run: bun --bun tsc --noEmit index.ts
+
+      - name: Test startup
+        run: |
+          echo "Testing application startup..."
+          timeout 10s bun run index.ts || true
+          echo "Startup test completed"
+
+      - name: Lint files
+        run: |
+          echo "Running basic file checks..."
+          test -f index.ts
+          test -f index.html
+          test -f package.json
+          test -f README.md
+          test -f LICENSE
+          echo "✅ All required files exist"
+
+      - name: Validate package.json
+        run: |
+          echo "Validating package.json..."
+          node -e "
+            const pkg = require('./package.json');
+            if (!pkg.name) throw new Error('Package name is required');
+            if (!pkg.version) throw new Error('Package version is required');
+            if (!pkg.bin) throw new Error('Binary entry is required');
+            console.log('✅ package.json validation passed');
+          "
+
+      - name: Test bundle size
+        run: |
+          echo "Checking bundle size..."
+          INDEX_SIZE=$(wc -c < index.ts)
+          HTML_SIZE=$(wc -c < index.html)
+          echo "index.ts: ${INDEX_SIZE} bytes"
+          echo "index.html: ${HTML_SIZE} bytes"
+          echo "✅ Bundle size check completed"

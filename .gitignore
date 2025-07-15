@@ -89,3 +89,9 @@ temp/
 
 # Docker
 .dockerignore
+
+# NPM registry configuration with tokens
+.npmrc
+
+# GitHub Packages
+*.tgz
