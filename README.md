@@ -27,7 +27,7 @@
 
 <div align="center">
 
-### 🔐 Secure Login Screen
+### 🔐 Login Screen
 <img src="assets/login.png" alt="Deno KV Explorer Login" width="600" />
 
 *Optional password protection with session-based authentication*
