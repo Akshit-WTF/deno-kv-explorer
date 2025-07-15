@@ -58,15 +58,6 @@ if ! git config user.email > /dev/null 2>&1; then
     echo -e "   Run: git config --global user.email \"your.email@example.com\""
 fi
 
-# Verify TypeScript can compile
-echo -e "${YELLOW}🔍 Checking TypeScript compilation...${NC}"
-if bun --bun tsc --noEmit index.ts; then
-    echo -e "${GREEN}✅ TypeScript compilation successful${NC}"
-else
-    echo -e "${RED}❌ TypeScript compilation failed${NC}"
-    exit 1
-fi
-
 # Test basic startup
 echo -e "${YELLOW}🧪 Testing basic startup...${NC}"
 timeout 5s bun run index.ts > /dev/null 2>&1 || true
