@@ -1,6 +1,6 @@
 {
   "name": "deno-kv-explorer",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A beautiful web interface for exploring and managing Deno KV databases",
   "module": "index.ts",
   "type": "module",
@@ -22,7 +22,16 @@
     "node": ">=18.0.0",
     "bun": ">=1.0.0"
   },
-  "keywords": ["kv", "database", "deno", "key-value", "explorer", "gui", "web-interface", "management"],
+  "keywords": [
+    "kv",
+    "database",
+    "deno",
+    "key-value",
+    "explorer",
+    "gui",
+    "web-interface",
+    "management"
+  ],
   "author": "Akshit Kumar (akshit.me)",
   "license": "MIT",
   "repository": {
