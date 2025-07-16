@@ -9,7 +9,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
   <script>
     tailwind.config = {
       darkMode: 'class',
@@ -19,25 +21,39 @@
             sans: ['Inter', 'sans-serif'],
           },
           colors: {
-            primary: {
-              50: '#f0f9ff',
-              100: '#e0f2fe',
-              200: '#bae6fd',
-              300: '#7dd3fc',
-              400: '#38bdf8',
-              500: '#0ea5e9',
-              600: '#0284c7',
-              700: '#0369a1',
-              800: '#075985',
-              900: '#0c4a6e',
-              950: '#082f49'
+            stone: {
+              50: '#fafaf9',
+              100: '#f5f5f4',
+              200: '#e7e5e4',
+              300: '#d6d3d1',
+              400: '#a8a29e',
+              500: '#78716c',
+              600: '#57534e',
+              700: '#44403c',
+              800: '#292524',
+              900: '#1c1917',
+              950: '#0c0a09'
+            },
+            neutral: {
+              50: '#fafafa',
+              100: '#f5f5f5',
+              200: '#e5e5e5',
+              300: '#d4d4d4',
+              400: '#a3a3a3',
+              500: '#737373',
+              600: '#525252',
+              700: '#404040',
+              800: '#262626',
+              900: '#171717',
+              950: '#0a0a0a'
             }
           },
           animation: {
-            'fade-in': 'fadeIn 0.3s ease-in-out',
-            'slide-in-left': 'slideInLeft 0.3s ease-out',
-            'slide-in-right': 'slideInRight 0.3s ease-out',
-            'pulse-subtle': 'pulseSubtle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'fade-in': 'fadeIn 0.5s ease-in-out',
+            'aurora': 'aurora 20s ease-in-out infinite alternate',
+            'modal-in': 'fadeIn 0.2s ease-out, scaleIn 0.2s ease-out',
+            'modal-out': 'fadeOut 0.2s ease-in, scaleOut 0.2s ease-in',
+            'skeleton-pulse': 'skeletonPulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
           },
           keyframes: {
             fadeIn: {
@@ -48,1081 +64,1305 @@
                 opacity: '1'
               }
             },
-            slideInLeft: {
+            fadeOut: {
               '0%': {
-                transform: 'translateX(-100%)',
-                opacity: '0'
+                opacity: '1'
               },
               '100%': {
-                transform: 'translateX(0)',
-                opacity: '1'
+                opacity: '0'
               }
             },
-            slideInRight: {
+            scaleIn: {
               '0%': {
-                transform: 'translateX(100%)',
-                opacity: '0'
+                transform: 'scale(0.95)'
               },
               '100%': {
-                transform: 'translateX(0)',
-                opacity: '1'
+                transform: 'scale(1)'
               }
             },
-            pulseSubtle: {
+            scaleOut: {
+              '0%': {
+                transform: 'scale(1)'
+              },
+              '100%': {
+                transform: 'scale(0.95)'
+              }
+            },
+            skeletonPulse: {
               '0%, 100%': {
-                opacity: '1'
+                backgroundColor: 'rgba(68, 64, 60, 0.5)'
               },
               '50%': {
-                opacity: '0.8'
+                backgroundColor: 'rgba(68, 64, 60, 0.8)'
               }
-            }
+            },
+            aurora: {
+              '0%': {
+                transform: 'translate(var(--tw-translate-x-0), var(--tw-translate-y-0)) rotate(var(--tw-rotate-0))'
+              },
+              '50%': {
+                transform: 'translate(var(--tw-translate-x-1), var(--tw-translate-y-1)) rotate(var(--tw-rotate-1))'
+              },
+              '100%': {
+                transform: 'translate(var(--tw-translate-x-2), var(--tw-translate-y-2)) rotate(var(--tw-rotate-2))'
+              },
+            },
           }
         },
       },
     }
   </script>
   <style>
-    /* Custom scrollbar */
     ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
+      width: 8px;
+      height: 8px;
     }
 
     ::-webkit-scrollbar-track {
-      background: #1e293b;
-      border-radius: 3px;
+      background: #0a0a0a;
     }
 
     ::-webkit-scrollbar-thumb {
-      background: linear-gradient(135deg, #0ea5e9, #0284c7);
-      border-radius: 3px;
+      background: #262626;
+      border-radius: 4px;
+      border: 2px solid #0a0a0a;
     }
 
     ::-webkit-scrollbar-thumb:hover {
-      background: linear-gradient(135deg, #0284c7, #0369a1);
+      background: #404040;
     }
 
-    /* Glass morphism effect */
     .glass {
-      background: rgba(15, 23, 42, 0.6);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(56, 189, 248, 0.1);
+      background: rgba(23, 23, 23, 0.6);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.05);
     }
 
-    /* Card effect */
-    .card-fold {
-      position: relative;
-    }
-
-    .card-fold::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      right: 0;
-      width: 0;
-      height: 0;
-      border-style: solid;
-      border-width: 0 20px 20px 0;
-      border-color: transparent #0ea5e9 transparent transparent;
-      opacity: 0.3;
-    }
-
-    /* Connection status indicator */
     .connection-indicator {
       width: 8px;
       height: 8px;
       border-radius: 50%;
-      background: #10b981;
-      box-shadow: 0 0 8px #10b981;
-      animation: pulse-subtle 2s infinite;
+      background: #4ade80;
+      box-shadow: 0 0 8px #4ade80, 0 0 12px #4ade80;
+      animation: pulse 2s infinite;
     }
 
     .connection-indicator.disconnected {
-      background: #ef4444;
-      box-shadow: 0 0 8px #ef4444;
+      background: #f87171;
+      box-shadow: 0 0 8px #f87171, 0 0 12px #f87171;
+      animation: none;
+    }
+
+    .line-clamp-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .line-clamp-3 {
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* Custom scrollbar for code areas */
+    pre::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    pre::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    pre::-webkit-scrollbar-thumb {
+      background: #404040;
+      border-radius: 3px;
+    }
+
+    pre::-webkit-scrollbar-thumb:hover {
+      background: #525252;
+    }
+
+    /* Improve focus states */
+    .focus-visible:focus {
+      outline: 2px solid #78716c;
+      outline-offset: 2px;
+    }
+
+    /* Smooth transitions for interactive elements */
+    .glass:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.25), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Custom Notyf styles to match our design */
+    .notyf__toast {
+      border-radius: 12px !important;
+      backdrop-filter: blur(24px) !important;
+      -webkit-backdrop-filter: blur(24px) !important;
+      border: 1px solid rgba(255, 255, 255, 0.1) !important;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.25), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+    }
+
+    .notyf__wrapper {
+      padding: 16px !important;
+    }
+
+    .notyf__message {
+      font-family: 'Inter', sans-serif !important;
+      font-weight: 500 !important;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.5;
+      }
     }
   </style>
 </head>
 
-<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-slate-200 antialiased h-screen overflow-hidden">
+<body class="bg-neutral-950 text-stone-200 antialiased h-screen overflow-hidden relative">
+  <div class="absolute inset-0 -z-50 overflow-hidden">
+    <div class="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.3),rgba(255,255,255,0))]"></div>
+    <div class="animate-aurora absolute -top-1/2 -left-1/3 w-[150%] h-[150%] opacity-20" style="--tw-translate-x-0: 10vw; --tw-translate-y-0: 10vh; --tw-rotate-0: 0deg; --tw-translate-x-1: -20vw; --tw-translate-y-1: 30vh; --tw-rotate-1: 10deg; --tw-translate-x-2: 0vw; --tw-translate-y-2: -20vh; --tw-rotate-2: -5deg;">
+      <div class="absolute w-[500px] h-[500px] rounded-full bg-stone-500/50 blur-[150px]"></div>
+    </div>
+    <div class="animate-aurora absolute -bottom-1/2 -right-1/3 w-[150%] h-[150%] opacity-20 animation-delay-[-6s]" style="--tw-translate-x-0: -10vw; --tw-translate-y-0: -10vh; --tw-rotate-0: 0deg; --tw-translate-x-1: 20vw; --tw-translate-y-1: -30vh; --tw-rotate-1: -10deg; --tw-translate-x-2: 0vw; --tw-translate-y-2: 20vh; --tw-rotate-2: 5deg;">
+      <div class="absolute w-[500px] h-[500px] rounded-full bg-amber-500/20 blur-[150px]"></div>
+    </div>
+  </div>
 
-  <!-- Password Protection Screen -->
-  <div id="auth-screen" class="fixed inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center z-50 hidden">
+  <div id="auth-screen" class="fixed inset-0 bg-neutral-950/80 backdrop-blur-md flex items-center justify-center z-50 animate-fade-in hidden">
     <div class="glass rounded-2xl p-8 max-w-md w-full mx-4">
       <div class="text-center mb-8">
-        <div class="w-16 h-16 bg-gradient-to-br from-primary-400 to-primary-600 rounded-xl mx-auto mb-4 flex items-center justify-center">
-          <i class="fas fa-lock text-white text-2xl"></i>
+        <div class="w-16 h-16 bg-neutral-900 border border-neutral-800 rounded-xl mx-auto mb-4 flex items-center justify-center">
+          <i class="fa-solid fa-lock text-stone-400 text-2xl"></i>
         </div>
         <h1 class="text-2xl font-bold text-white mb-2">Protected Access</h1>
-        <p class="text-slate-400">Enter password to access Deno KV Explorer</p>
+        <p class="text-stone-400">Enter password to access Deno KV Explorer</p>
       </div>
-      
       <form id="auth-form" class="space-y-6">
         <div>
-          <label for="password-input" class="block text-sm font-medium text-slate-300 mb-2">Password</label>
+          <label for="password-input" class="block text-sm font-medium text-stone-300 mb-2">Password</label>
           <div class="relative">
-            <input 
-              type="password" 
-              id="password-input" 
-              required 
-              class="w-full bg-slate-800/50 border border-slate-600/50 rounded-lg px-4 py-3 pl-12 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
-              placeholder="Enter password..."
-              autocomplete="current-password"
-            >
-            <i class="fas fa-key absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
+            <input type="password" id="password-input" required class="w-full bg-neutral-900/50 border border-neutral-700 rounded-lg px-4 py-3 pl-12 text-sm placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-stone-400 transition-all" placeholder="Enter password..." autocomplete="current-password">
+            <i class="fa-solid fa-key absolute left-4 top-1/2 transform -translate-y-1/2 text-stone-500"></i>
           </div>
         </div>
-        
         <div id="auth-error" class="hidden">
-          <div class="bg-red-500/20 border border-red-500/50 rounded-lg p-3 flex items-center space-x-2">
-            <i class="fas fa-exclamation-triangle text-red-400"></i>
+          <div class="bg-red-500/10 border border-red-500/30 rounded-lg p-3 flex items-center space-x-2">
+            <i class="fa-solid fa-exclamation-triangle text-red-400"></i>
             <span class="text-red-400 text-sm">Invalid password. Please try again.</span>
           </div>
         </div>
-        
-        <button 
-          type="submit" 
-          id="auth-submit"
-          class="w-full bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-center space-x-2"
-        >
-          <i class="fas fa-unlock"></i>
+        <button type="submit" id="auth-submit" class="w-full bg-stone-200 hover:bg-stone-100 text-stone-800 font-semibold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-center space-x-2">
+          <i class="fa-solid fa-unlock"></i>
           <span>Access Explorer</span>
         </button>
       </form>
     </div>
   </div>
 
-  <!-- Main Application (hidden during auth) -->
-  <div id="main-app" class="h-screen overflow-hidden">
-  <!-- Top Navigation Bar -->
-  <nav class="glass border-b border-primary-500/20 px-6 py-4">
-    <div class="flex items-center justify-between">
-      <div class="flex items-center space-x-4">
-        <!-- Logo -->
-        <div class="flex items-center space-x-3">
-          <div class="relative">
-            <div class="w-10 h-10 bg-gradient-to-br from-primary-400 to-primary-600 rounded-lg card-fold flex items-center justify-center">
-              <i class="fas fa-database text-white text-lg"></i>
-            </div>
-          </div>
-          <div>
-            <h1 class="text-xl font-bold bg-gradient-to-r from-primary-400 to-primary-600 bg-clip-text text-transparent">
-              Deno KV Explorer
-            </h1>
-            <p class="text-xs text-slate-400">Key-Value Database</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="flex items-center space-x-4">
-        <!-- Connection Status -->
-        <div class="flex items-center space-x-2">
-          <div id="connection-status" class="connection-indicator"></div>
-          <span class="text-sm text-slate-400">Connected</span>
-        </div>
-
-        <!-- Stats -->
-        <div class="hidden md:flex items-center space-x-6 text-sm">
-          <div class="flex items-center space-x-2">
-            <i class="fas fa-database text-primary-400"></i>
-            <span class="text-slate-400">Namespaces:</span>
-            <span id="namespace-count" class="text-white font-semibold">0</span>
-          </div>
-          <div class="flex items-center space-x-2">
-            <i class="fas fa-key text-primary-400"></i>
-            <span class="text-slate-400">Entries:</span>
-            <span id="entry-count" class="text-white font-semibold">0</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </nav>
-
-  <div id="app" class="flex overflow-hidden" style="height: calc(100vh - 80px);">
-    <!-- Sidebar for Namespaces -->
-    <aside class="w-80 glass border-r border-primary-500/20 flex flex-col animate-slide-in-left lg:w-80 md:w-72 sm:w-64 hidden md:flex overflow-hidden">
-      <!-- Sidebar Header -->
-      <div class="p-6 border-b border-slate-700/50 flex-shrink-0">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-lg font-semibold text-white flex items-center">
-            <i class="fas fa-folder-tree text-primary-400 mr-2"></i>
-            Namespaces
-          </h2>
-          <button id="refresh-btn" class="p-2 hover:bg-slate-700/50 rounded-lg transition-colors" title="Refresh">
-            <i class="fas fa-sync-alt text-slate-400 hover:text-white"></i>
-          </button>
-        </div>
-
-        <!-- Create Namespace -->
-        <div class="relative">
-          <input type="text" id="new-namespace-input" placeholder="New namespace..." class="w-full bg-slate-800/50 border border-slate-600/50 rounded-lg px-4 py-3 pr-20 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all">
-          <button id="create-namespace-btn" class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-primary-600 hover:bg-primary-700 text-white px-3 py-1.5 rounded text-xs font-medium transition-colors whitespace-nowrap">
-            <i class="fas fa-plus mr-1"></i>Create
-          </button>
-        </div>
-      </div>
-
-      <!-- Namespace List -->
-      <div class="flex-1 overflow-y-auto p-4">
-        <nav id="namespace-list" class="space-y-2">
-          <!-- Namespaces will be dynamically inserted here -->
-          <div class="text-center text-slate-500 py-8 animate-pulse">
-            <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
-            <p>Loading namespaces...</p>
-          </div>
-        </nav>
-      </div>
-    </aside>
-
-    <!-- Mobile Sidebar Toggle -->
-    <div class="md:hidden fixed top-4 left-4 z-50">
-      <button id="mobile-sidebar-toggle" class="glass p-3 rounded-lg">
-        <i class="fas fa-bars text-white"></i>
-      </button>
-    </div>
-
-    <!-- Mobile Sidebar Overlay -->
-    <div id="mobile-sidebar-overlay" class="md:hidden fixed inset-0 bg-black/50 z-40 hidden">
-      <aside class="w-80 glass h-full flex flex-col animate-slide-in-left overflow-hidden">
-        <!-- Sidebar Header -->
-        <div class="p-6 border-b border-slate-700/50 flex-shrink-0">
-          <div class="flex items-center justify-between mb-4">
-            <h2 class="text-lg font-semibold text-white flex items-center">
-              <i class="fas fa-folder-tree text-primary-400 mr-2"></i>
-              Namespaces
-            </h2>
-            <button id="mobile-sidebar-close" class="p-2 hover:bg-slate-700/50 rounded-lg transition-colors">
-              <i class="fas fa-times text-slate-400 hover:text-white"></i>
-            </button>
-          </div>
-
-          <!-- Create Namespace -->
-          <div class="relative">
-            <input type="text" id="new-namespace-input-mobile" placeholder="New namespace..." class="w-full bg-slate-800/50 border border-slate-600/50 rounded-lg px-4 py-3 pr-20 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all">
-            <button id="create-namespace-btn-mobile" class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-primary-600 hover:bg-primary-700 text-white px-3 py-1.5 rounded text-xs font-medium transition-colors whitespace-nowrap">
-              <i class="fas fa-plus mr-1"></i>Create
-            </button>
-          </div>
-        </div>
-
-        <!-- Namespace List -->
-        <div class="flex-1 overflow-y-auto p-4">
-          <nav id="namespace-list-mobile" class="space-y-2">
-            <!-- Namespaces will be dynamically inserted here -->
-          </nav>
-        </div>
-      </aside>
-    </div>
-
-    <!-- Main Content -->
-    <main class="flex-1 flex flex-col animate-slide-in-right overflow-hidden">
-      <!-- Main Header -->
-      <header class="p-6 border-b border-slate-700/50 bg-slate-900/50 sticky top-0 z-20 backdrop-blur-sm flex-shrink-0">
-        <div class="flex items-center justify-between">
+  <div id="main-app" class="h-screen overflow-hidden flex flex-col hidden">
+    <nav class="glass border-b border-neutral-800 px-4 sm:px-6 py-3 flex-shrink-0">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+          <button id="mobile-sidebar-toggle" class="p-2 -ml-2 text-stone-400 hover:text-white md:hidden"><i class="fa-solid fa-bars"></i></button>
           <div class="flex items-center space-x-3">
-            <div class="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-700 rounded-lg flex items-center justify-center">
-              <i class="fas fa-database text-white text-sm"></i>
-            </div>
+            <div class="w-10 h-10 bg-neutral-900 border border-neutral-800 rounded-lg flex items-center justify-center"><i class="fa-solid fa-database text-stone-400 text-lg"></i></div>
             <div>
-              <h2 class="text-xl font-bold text-white">
-                <span id="current-namespace-display" class="text-primary-400">default</span>
-              </h2>
-              <p class="text-sm text-slate-400">Key-Value entries in this namespace</p>
+              <h1 class="text-xl font-bold text-white">KV Explorer</h1>
             </div>
-          </div>
-
-          <div class="flex items-center space-x-3">
-            <button id="export-btn" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-sm font-medium transition-colors flex items-center space-x-2">
-              <i class="fas fa-download"></i>
-              <span>Export</span>
-            </button>
-            <button id="import-btn" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-sm font-medium transition-colors flex items-center space-x-2">
-              <i class="fas fa-upload"></i>
-              <span>Import</span>
-            </button>
           </div>
         </div>
-      </header>
-
-      <!-- Scrollable Content Area -->
-      <div class="flex-1 overflow-y-auto">
-        <!-- Add Item Form -->
-        <div class="p-6 border-b border-slate-700/50 flex-shrink-0">
-          <div class="glass rounded-xl p-6 card-fold">
-            <h3 class="text-lg font-semibold text-white mb-6 flex items-center">
-              <i class="fas fa-plus-circle text-primary-400 mr-2"></i>
-              Add New Entry
-            </h3>
-            <form id="add-item-form" class="space-y-4">
-              <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- Key Input -->
-                <div class="space-y-2">
-                  <label for="key-input" class="block text-sm font-medium text-slate-300">Key</label>
-                  <div class="relative">
-                    <input type="text" id="key-input" required class="w-full bg-slate-800/50 border border-slate-600/50 rounded-lg px-4 py-3 pl-12 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" placeholder="Enter key name...">
-                    <i class="fas fa-key absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
-                  </div>
-                </div>
-
-                <!-- Value Input -->
-                <div class="space-y-2">
-                  <label for="value-input" class="block text-sm font-medium text-slate-300">Value (JSON)</label>
-                  <div class="relative">
-                    <textarea id="value-input" required rows="4" class="w-full bg-slate-800/50 border border-slate-600/50 rounded-lg px-4 py-3 pl-12 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all resize-y min-h-[100px]" placeholder='{"example": "value", "number": 123, "array": [1, 2, 3]}'></textarea>
-                    <i class="fas fa-code absolute left-4 top-4 text-slate-400"></i>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Submit Button -->
-              <div class="flex justify-end pt-2">
-                <button type="submit" class="bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-semibold py-3 px-8 rounded-lg transition-all duration-200 transform hover:scale-105 flex items-center space-x-2 shadow-lg shadow-primary-500/25">
-                  <i class="fas fa-save"></i>
-                  <span>Add Entry</span>
-                </button>
-              </div>
-            </form>
+        <div class="flex items-center space-x-4">
+          <div class="hidden md:flex items-center space-x-6 text-sm">
+            <div class="flex items-center space-x-2" title="Total Namespaces"><i class="fa-solid fa-folder-tree text-stone-400"></i><span>Namespaces:</span><span id="namespace-count" class="text-white font-semibold">0</span></div>
+            <div class="flex items-center space-x-2" title="Entries in Current Namespace"><i class="fa-solid fa-key text-stone-400"></i><span>Entries:</span><span id="entry-count" class="text-white font-semibold">0</span></div>
           </div>
-        </div>
-
-        <!-- Item List -->
-        <div class="p-6">
-          <div class="glass rounded-xl card-fold">
-            <!-- Entries Header -->
-            <div class="p-6 border-b border-slate-700/50">
-              <div class="flex items-center justify-between">
-                <h3 class="text-lg font-semibold text-white flex items-center">
-                  <i class="fas fa-list text-primary-400 mr-2"></i>
-                  Entries
-                </h3>
-                <div class="flex items-center space-x-3">
-                  <div class="relative">
-                    <input type="text" id="search-input" placeholder="Search entries..." class="bg-slate-800/50 border border-slate-600/50 rounded-lg px-4 py-2 pl-10 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all w-48 lg:w-64">
-                    <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
-                  </div>
-                  <select id="sort-select" class="bg-slate-800/50 border border-slate-600/50 rounded-lg px-4 py-2 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500">
-                    <option value="key-asc">Key (A-Z)</option>
-                    <option value="key-desc">Key (Z-A)</option>
-                    <option value="created-desc">Newest First</option>
-                    <option value="created-asc">Oldest First</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            <!-- Entries List -->
-            <div id="item-list" class="p-6 space-y-4">
-              <!-- Items will be dynamically inserted here -->
-            </div>
+          <div class="flex items-center space-x-2">
+            <div id="connection-status" class="connection-indicator"></div><span class="text-sm text-stone-400 hidden sm:inline">Connected</span>
           </div>
         </div>
       </div>
-      <!-- End Scrollable Content Area -->
-    </main>
+    </nav>
+    <div class="flex flex-1 overflow-hidden">
+      <div id="sidebar-container" class="fixed inset-0 z-40 md:static md:z-auto md:transform-none transform -translate-x-full transition-transform duration-300 ease-in-out">
+        <div id="sidebar-overlay" class="fixed inset-0 bg-black/60 md:hidden"></div>
+        <aside id="sidebar" class="w-72 glass border-r border-neutral-800 flex flex-col h-full absolute md:relative">
+          <div class="p-4 border-b border-neutral-800 flex-shrink-0">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-lg font-semibold text-white flex items-center"><i class="fa-solid fa-folder-tree text-stone-400 mr-2"></i>Namespaces</h2>
+              <button data-action="refresh-namespaces" class="w-8 h-8 flex items-center justify-center hover:bg-neutral-700/50 rounded-lg transition-colors" title="Refresh Namespaces"><i class="fa-solid fa-sync-alt text-stone-400 hover:text-white"></i></button>
+            </div>
+            <div class="relative">
+              <input type="text" id="new-namespace-input" placeholder="Create new namespace..." class="w-full bg-neutral-900/50 border border-neutral-700 rounded-lg px-4 py-2.5 pr-10 text-sm placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-stone-400 transition-all">
+              <button data-action="create-namespace" class="absolute right-2 top-1/2 transform -translate-y-1/2 text-stone-400 hover:text-white p-1.5 rounded-full transition-colors"><i class="fa-solid fa-plus-circle"></i></button>
+            </div>
+          </div>
+          <nav id="namespace-list" class="flex-1 overflow-y-auto p-2 space-y-1 list-none"></nav>
+        </aside>
+      </div>
+      <main id="main-content" class="flex-1 flex flex-col overflow-hidden animate-fade-in">
+        <header class="p-4 border-b border-neutral-800 bg-neutral-950/50 sticky top-0 z-20 backdrop-blur-sm flex-shrink-0">
+          <div class="flex items-center justify-between flex-wrap gap-4">
+            <div class="flex items-center space-x-3">
+              <div class="w-8 h-8 bg-neutral-800 border border-neutral-700 rounded-lg flex items-center justify-center"><i class="fa-solid fa-database text-stone-300 text-sm"></i></div>
+              <div>
+                <h2 class="text-xl font-bold text-white"><span id="current-namespace-display" class="text-stone-300">default</span></h2>
+              </div>
+            </div>
+            <div class="flex items-center space-x-2 sm:space-x-3">
+              <div id="view-toggle" class="relative flex items-center bg-neutral-800 rounded-lg p-1 border border-neutral-700">
+                <span id="view-toggle-highlight" class="absolute top-1 bottom-1 left-1 bg-stone-600 rounded-md transition-all duration-300 ease-in-out shadow-lg shadow-stone-900/20"></span>
+                <button data-view="full" class="relative px-2 py-1.5 text-sm font-medium transition-colors flex items-center space-x-1.5 z-10"><i class="fa-solid fa-list-ul"></i><span class="hidden sm:inline">Full</span></button>
+                <button data-view="compact" class="relative px-2 py-1.5 text-sm font-medium transition-colors flex items-center space-x-1.5 z-10"><i class="fa-solid fa-th-large"></i><span class="hidden sm:inline">Compact</span></button>
+                <button data-view="table" class="relative px-2 py-1.5 text-sm font-medium transition-colors flex items-center space-x-1.5 z-10"><i class="fa-solid fa-table"></i><span class="hidden sm:inline">Table</span></button>
+              </div>
+              <button data-action="export-namespace" class="h-10 px-3 bg-neutral-800 hover:bg-neutral-700 text-stone-300 hover:text-white rounded-lg transition-colors" title="Export Namespace"><i class="fa-solid fa-download"></i></button>
+              <button data-action="import-namespace" class="h-10 px-3 bg-neutral-800 hover:bg-neutral-700 text-stone-300 hover:text-white rounded-lg transition-colors" title="Import to Namespace"><i class="fa-solid fa-upload"></i></button>
+            </div>
+          </div>
+        </header>
+        <div class="flex-1 overflow-y-auto">
+          <div class="p-4 sm:p-6 border-b border-neutral-800 flex-shrink-0">
+            <div class="glass rounded-xl p-6">
+              <h3 class="text-lg font-semibold text-white mb-6 flex items-center"><i class="fa-solid fa-plus-circle text-stone-400 mr-2.5"></i>Add New Entry</h3>
+              <form id="add-item-form" class="space-y-4">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div class="space-y-2"><label for="key-input" class="block text-sm font-medium text-stone-300">Key</label>
+                    <div class="relative"><input type="text" id="key-input" required class="w-full bg-neutral-900/50 border border-neutral-700 rounded-lg px-4 py-3 pl-12 text-sm placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-stone-400 transition-all" placeholder="Enter a unique key name..."><i class="fa-solid fa-key absolute left-4 top-1/2 transform -translate-y-1/2 text-stone-500"></i></div>
+                  </div>
+                  <div class="space-y-2"><label for="value-input" class="block text-sm font-medium text-stone-300">Value</label>
+                    <div class="relative"><textarea id="value-input" required rows="4" class="w-full bg-neutral-900/50 border border-neutral-700 rounded-lg px-4 py-3 pl-12 text-sm placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-stone-400 transition-all resize-y min-h-[100px]" placeholder='Enter any value: "hello", 42, true, {"key": "value"}, [1,2,3]'></textarea><i class="fa-solid fa-code absolute left-4 top-4 text-stone-500"></i></div>
+                    <p class="text-xs text-stone-500">You can enter strings, numbers, booleans, objects, arrays, or null values</p>
+                  </div>
+                </div>
+                <div class="flex justify-end pt-2"><button type="submit" class="bg-stone-600 hover:bg-stone-500 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 flex items-center space-x-2 shadow-lg shadow-stone-900/30"><i class="fa-solid fa-save"></i><span>Add Entry</span></button></div>
+              </form>
+            </div>
+          </div>
+          <div class="p-4 sm:p-6">
+            <div class="glass rounded-xl">
+              <div class="p-4 sm:p-6 border-b border-neutral-800">
+                <div class="flex items-center justify-between flex-wrap gap-4">
+                  <h3 class="text-lg font-semibold text-white flex items-center"><i class="fa-solid fa-list text-stone-400 mr-2.5"></i>Entries</h3>
+                  <div class="flex items-center space-x-3">
+                    <div class="relative"><input type="text" id="search-input" placeholder="Search entries..." class="bg-neutral-800/50 border border-neutral-700 rounded-lg px-4 py-2 pl-10 text-sm placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-stone-400 w-40 sm:w-64"><i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-stone-500"></i></div>
+                    <select id="sort-select" class="bg-neutral-800/50 border border-neutral-700 rounded-lg px-3 py-2 text-sm text-stone-200 focus:outline-none focus:ring-2 focus:ring-stone-400">
+                      <option value="key-asc">Key (A-Z)</option>
+                      <option value="key-desc">Key (Z-A)</option>
+                      <option value="created-desc">Newest</option>
+                      <option value="created-asc">Oldest</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div id="item-list-container" class="p-4 sm:p-6"></div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
   </div>
 
-  <!-- Toast Notifications -->
-  <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
+  <div id="confirmation-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 hidden animate-fade-in">
+    <div class="glass rounded-2xl p-8 max-w-md w-full mx-4 animate-modal-in" id="modal-content">
+      <div class="text-center mb-6">
+        <div id="modal-icon-container" class="w-16 h-16 bg-neutral-800 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-neutral-700">
+          <i id="modal-icon" class="fa-solid fa-trash-can text-stone-400 text-2xl"></i>
+        </div>
+        <h2 id="modal-title" class="text-2xl font-bold text-white mb-2">Delete Entry</h2>
+        <p id="modal-message" class="text-stone-400">Are you sure? This action cannot be undone.</p>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <button id="modal-cancel-btn" class="w-full bg-neutral-700 hover:bg-neutral-600 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200">Cancel</button>
+        <button id="modal-confirm-btn" class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200">Delete</button>
+      </div>
+    </div>
   </div>
-  <!-- End Main Application -->
 
   <script>
-    // Authentication Logic
-    let sessionId = null;
-    let requiresPassword = false;
-    
-    // Check if password is required and handle authentication
-    async function checkAuth() {
-      try {
-        const response = await fetch('/auth', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ password: '' }) // Empty password to check if auth is required
-        });
-        
-        const data = await response.json();
-        requiresPassword = data.requiresPassword !== false; // Default to true if not specified
-        
-        if (!requiresPassword) {
-          // No password required, show main app
-          document.getElementById('auth-screen').classList.add('hidden');
-          document.getElementById('main-app').classList.remove('hidden');
-          initializeApp();
-        } else {
-          // Password required, show auth screen
-          document.getElementById('auth-screen').classList.remove('hidden');
-          document.getElementById('main-app').classList.add('hidden');
-          document.getElementById('password-input').focus();
-        }
-      } catch (error) {
-        console.error('Auth check failed:', error);
-        // Assume password is required on error
-        requiresPassword = true;
-        document.getElementById('auth-screen').classList.remove('hidden');
-        document.getElementById('main-app').classList.add('hidden');
-      }
-    }
-    
-    // Handle authentication form submission
-    document.getElementById('auth-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const password = document.getElementById('password-input').value;
-      const submitBtn = document.getElementById('auth-submit');
-      const errorDiv = document.getElementById('auth-error');
-      
-      // Show loading state
-      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Authenticating...</span>';
-      submitBtn.disabled = true;
-      errorDiv.classList.add('hidden');
-      
-      try {
-        const response = await fetch('/auth', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ password })
-        });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-          sessionId = data.sessionId;
-          // Hide auth screen and show main app
-          document.getElementById('auth-screen').classList.add('hidden');
-          document.getElementById('main-app').classList.remove('hidden');
-          initializeApp();
-        } else {
-          // Show error
-          errorDiv.classList.remove('hidden');
-          document.getElementById('password-input').value = '';
-          document.getElementById('password-input').focus();
-        }
-      } catch (error) {
-        console.error('Authentication failed:', error);
-        errorDiv.classList.remove('hidden');
-      } finally {
-        // Reset button state
-        submitBtn.innerHTML = '<i class="fas fa-unlock"></i><span>Access Explorer</span>';
-        submitBtn.disabled = false;
-      }
-    });
-    
-    // Initialize the main application
-    function initializeApp() {
-      // Initialize WebSocket and other app logic
-      initWebSocket();
-    }
-    
-    // Call auth check on page load
-    checkAuth();
-    
-    // WebSocket initialization (moved into function)
-    let ws;
-    
-    function initWebSocket() {
-      const wsUrl = `ws://${window.location.host}/ws${sessionId ? `?session=${sessionId}` : ''}`;
-      ws = new WebSocket(wsUrl);
-      
-      // Rest of the WebSocket logic will go here
-      setupWebSocketHandlers();
-    }
-    
-    function setupWebSocketHandlers() {
-    // State
-    let currentState = {
-      namespaces: [],
-      entries: [],
-      currentNamespace: 'default',
-      filteredEntries: [],
-      searchTerm: '',
-      sortBy: 'key-asc',
-      namespaceCounts: {}
-    };
+    document.addEventListener('DOMContentLoaded', () => {
+          // Initialize Notyf for beautiful toast notifications
+          const notyf = new Notyf({
+            duration: 4000,
+            position: {
+              x: 'right',
+              y: 'bottom'
+            },
+            dismissible: true,
+            types: [
+              {
+                type: 'info',
+                background: '#3b82f6',
+                icon: {
+                  className: 'fas fa-info-circle',
+                  tagName: 'i',
+                  color: 'white'
+                }
+              },
+              {
+                type: 'warning',
+                background: '#f59e0b',
+                icon: {
+                  className: 'fas fa-exclamation-triangle',
+                  tagName: 'i',
+                  color: 'white'
+                }
+              }
+            ]
+          });
 
-    // DOM Elements
-    const namespaceListEl = document.getElementById('namespace-list');
-    const namespaceListMobileEl = document.getElementById('namespace-list-mobile');
-    const newNamespaceInputEl = document.getElementById('new-namespace-input');
-    const newNamespaceInputMobileEl = document.getElementById('new-namespace-input-mobile');
-    const createNamespaceBtnEl = document.getElementById('create-namespace-btn');
-    const createNamespaceBtnMobileEl = document.getElementById('create-namespace-btn-mobile');
-    const currentNamespaceDisplayEl = document.getElementById('current-namespace-display');
-    const itemListEl = document.getElementById('item-list');
-    const addItemFormEl = document.getElementById('add-item-form');
-    const keyInputEl = document.getElementById('key-input');
-    const valueInputEl = document.getElementById('value-input');
-    const searchInputEl = document.getElementById('search-input');
-    const sortSelectEl = document.getElementById('sort-select');
-    const connectionStatusEl = document.getElementById('connection-status');
-    const namespaceCountEl = document.getElementById('namespace-count');
-    const entryCountEl = document.getElementById('entry-count');
-    const refreshBtnEl = document.getElementById('refresh-btn');
-    const exportBtnEl = document.getElementById('export-btn');
-    const importBtnEl = document.getElementById('import-btn');
-    const mobileSidebarToggleEl = document.getElementById('mobile-sidebar-toggle');
-    const mobileSidebarOverlayEl = document.getElementById('mobile-sidebar-overlay');
-    const mobileSidebarCloseEl = document.getElementById('mobile-sidebar-close');
+          // --- STATE & DOM ---
+          const state = {
+            ws: null,
+            sessionId: null,
+            namespaces: [],
+            entries: [],
+            currentNamespace: 'default',
+            filteredEntries: [],
+            searchTerm: '',
+            sortBy: 'key-asc',
+            namespaceCounts: {},
+            viewMode: 'full',
+            isLoading: true,
+            editingItem: null,
+            isSidebarOpen: false
+          };
+          const DOM = {
+            authScreen: document.getElementById('auth-screen'),
+            authForm: document.getElementById('auth-form'),
+            passwordInput: document.getElementById('password-input'),
+            authError: document.getElementById('auth-error'),
+            authSubmit: document.getElementById('auth-submit'),
+            mainApp: document.getElementById('main-app'),
+            connectionStatus: document.getElementById('connection-status'),
+            namespaceCount: document.getElementById('namespace-count'),
+            entryCount: document.getElementById('entry-count'),
+            sidebarContainer: document.getElementById('sidebar-container'),
+            sidebarOverlay: document.getElementById('sidebar-overlay'),
+            namespaceList: document.getElementById('namespace-list'),
+            newNamespaceInput: document.getElementById('new-namespace-input'),
+            currentNamespaceDisplay: document.getElementById('current-namespace-display'),
+            itemListContainer: document.getElementById('item-list-container'),
+            addItemForm: document.getElementById('add-item-form'),
+            keyInput: document.getElementById('key-input'),
+            valueInput: document.getElementById('value-input'),
+            searchInput: document.getElementById('search-input'),
+            sortSelect: document.getElementById('sort-select'),
+            viewToggle: document.getElementById('view-toggle'),
+            viewToggleHighlight: document.getElementById('view-toggle-highlight'),
+            confirmationModal: document.getElementById('confirmation-modal'),
+            modalTitle: document.getElementById('modal-title'),
+            modalMessage: document.getElementById('modal-message'),
+            modalConfirmBtn: document.getElementById('modal-confirm-btn'),
+            modalCancelBtn: document.getElementById('modal-cancel-btn'),
+          };
 
-    // Debug: Check if elements are found
-    console.log('Desktop create namespace button:', createNamespaceBtnEl);
-    console.log('Mobile create namespace button:', createNamespaceBtnMobileEl);
-    console.log('Desktop namespace input:', newNamespaceInputEl);
-    console.log('Mobile namespace input:', newNamespaceInputMobileEl);
+          // --- AUTH ---
+          const checkAuth = async () => {
+            try {
+              const response = await fetch('/auth', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  password: ''
+                })
+              });
+              const data = await response.json();
+              if (data.requiresPassword) {
+                DOM.authScreen.classList.remove('hidden');
+                DOM.passwordInput.focus();
+              } else if (data.success) {
+                state.sessionId = data.sessionId;
+                DOM.authScreen.classList.add('hidden');
+                DOM.mainApp.classList.remove('hidden');
+                DOM.mainApp.classList.add('flex');
+                initializeApp();
+              } else {
+                throw new Error('Authentication check failed.');
+              }
+            } catch (error) {
+              console.error('Auth check failed:', error);
+              showToast('Could not verify authentication status.', 'error');
+              DOM.authScreen.classList.remove('hidden');
+            }
+          };
+          DOM.authForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const password = DOM.passwordInput.value;
+            DOM.authSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Authenticating...</span>';
+            DOM.authSubmit.disabled = true;
+            DOM.authError.classList.add('hidden');
+            try {
+              const response = await fetch('/auth', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  password
+                })
+              });
+              const data = await response.json();
+              if (data.success) {
+                state.sessionId = data.sessionId;
+                DOM.authScreen.classList.add('hidden');
+                DOM.mainApp.classList.remove('hidden');
+                DOM.mainApp.classList.add('flex');
+                initializeApp();
+              } else {
+                DOM.authError.classList.remove('hidden');
+                DOM.passwordInput.value = '';
+                DOM.passwordInput.focus();
+              }
+            } catch (error) {
+              console.error('Authentication failed:', error);
+              DOM.authError.classList.remove('hidden');
+            } finally {
+              DOM.authSubmit.innerHTML = '<i class="fa-solid fa-unlock"></i><span>Access Explorer</span>';
+              DOM.authSubmit.disabled = false;
+            }
+          });
 
-    // Toast notification system
-    function showToast(message, type = 'info') {
-      const toast = document.createElement('div');
-      const icons = {
-        success: 'fas fa-check-circle',
-        error: 'fas fa-exclamation-triangle',
-        warning: 'fas fa-exclamation-circle',
-        info: 'fas fa-info-circle'
-      };
-      const colors = {
-        success: 'from-green-500 to-green-600',
-        error: 'from-red-500 to-red-600',
-        warning: 'from-yellow-500 to-yellow-600',
-        info: 'from-blue-500 to-blue-600'
-      };
+          // --- INITIALIZATION ---
+          const initializeApp = () => {
+            initWebSocket();
+            setupEventListeners();
+            updateViewToggle();
+          };
 
-      toast.className = `glass rounded-lg p-4 text-white transform transition-all duration-300 translate-x-full opacity-0 flex items-center space-x-3 max-w-sm`;
-      toast.innerHTML = `
-        <div class="w-8 h-8 bg-gradient-to-r ${colors[type]} rounded-full flex items-center justify-center flex-shrink-0">
-          <i class="${icons[type]} text-sm"></i>
-        </div>
-        <div class="flex-1">
-          <p class="text-sm font-medium">${message}</p>
-        </div>
-        <button class="text-slate-400 hover:text-white transition-colors">
-          <i class="fas fa-times"></i>
-        </button>
-      `;
+          // --- WEBSOCKET ---
+          const initWebSocket = () => {
+            const wsUrl = `ws://${window.location.host}/ws${state.sessionId ? `?session=${state.sessionId}` : ''}`;
+            state.ws = new WebSocket(wsUrl);
+            state.ws.onopen = () => {
+              DOM.connectionStatus.classList.remove('disconnected');
+              showToast('Connected to Deno KV server', 'success');
+              sendWsMessage('get-namespace-counts');
+            };
+            state.ws.onclose = () => {
+              DOM.connectionStatus.classList.add('disconnected');
+              showToast('Connection lost. Please refresh.', 'error');
+            };
+            state.ws.onerror = (error) => {
+              console.error('WebSocket error:', error);
+              showToast('WebSocket connection error.', 'error');
+            };
+            state.ws.onmessage = (event) => {
+              const {
+                type,
+                payload
+              } = JSON.parse(event.data);
+              handleWsMessage(type, payload);
+            };
+          };
+          const sendWsMessage = (type, payload = {}) => {
+            if (state.ws && state.ws.readyState === WebSocket.OPEN) {
+              state.ws.send(JSON.stringify({
+                type,
+                payload
+              }));
+            }
+          };
+          const handleWsMessage = (type, payload) => {
+            console.log('Received WebSocket message:', type, payload);
+            state.isLoading = false;
+            
+            switch (type) {
+              case 'initial-data':
+              case 'namespace-data':
+                state.entries = payload.entries || [];
+                console.log('Updated entries:', state.entries.length);
+                applyFiltersAndSort();
+                render();
+                break;
+              case 'namespace-counts':
+                state.namespaces = payload.namespaces || [];
+                state.namespaceCounts = payload.counts || {};
+                console.log('Updated namespaces:', state.namespaces, 'counts:', state.namespaceCounts);
+                switchNamespace(state.currentNamespace, true);
+                break;
+              case 'update':
+                if (payload.updatedNamespace === state.currentNamespace) {
+                  state.entries = payload.entries || [];
+                  console.log('Namespace update - entries:', state.entries.length);
+                  applyFiltersAndSort();
+                  renderEntries();
+                }
+                state.namespaces = payload.namespaces || [];
+                state.namespaceCounts = payload.counts || {};
+                renderNamespaces();
+                updateStats();
+                showToast(`Namespace "${payload.updatedNamespace}" updated.`, 'success');
+                break;
+              case 'namespace-deleted':
+                showToast(`Namespace "${payload.namespace}" deleted successfully.`, 'success');
+                // Refresh namespace data
+                sendWsMessage('get-namespace-counts');
+                break;
+              case 'error':
+                console.error('Server error:', payload);
+                showToast(`Server Error: ${payload.message}`, 'error');
+                render();
+                break;
+              default:
+                console.warn('Unknown message type:', type);
+            }
+          };
 
-      document.getElementById('toast-container').appendChild(toast);
+          // --- EVENT LISTENERS ---
+          const setupEventListeners = () => {
+            document.body.addEventListener('click', (e) => {
+              const target = e.target.closest('[data-action]');
+              if (!target) return;
 
-      // Animate in
-      setTimeout(() => {
-        toast.classList.remove('translate-x-full', 'opacity-0');
-      }, 100);
+              const action = target.dataset.action;
+              const itemElement = target.closest('[data-key]');
+              const key = itemElement?.dataset.key;
+              const actions = {
+                'refresh-namespaces': () => {
+                  sendWsMessage('get-namespace-counts');
+                  showToast('Refreshing namespaces...', 'info');
+                },
+                'create-namespace': () => createNamespace(),
+                'select-namespace': () => switchNamespace(target.dataset.namespace),
+                'delete-namespace': () => {
+                  e.stopPropagation();
+                  confirmAction({
+                    title: "Delete Namespace",
+                    message: `Delete "<strong>${target.dataset.namespace}</strong>" and all its entries?`,
+                    onConfirm: () => {
+                      sendWsMessage('delete-namespace', {
+                        namespace: target.dataset.namespace
+                      });
+                      if (target.dataset.namespace === state.currentNamespace) switchNamespace('default');
+                    }
+                  });
+                },
+                'export-namespace': () => exportData(),
+                'import-namespace': () => importData(),
+                'delete-item': () => {
+                  if (!key) return;
+                  confirmAction({
+                    title: "Delete Entry",
+                    message: `Are you sure you want to delete "<strong>${key}</strong>"?`,
+                    onConfirm: () => {
+                      itemElement.classList.add('animate-fade-out');
+                      itemElement.addEventListener('animationend', () => itemElement.remove(), {
+                        once: true
+                      });
+                      sendWsMessage('delete-item', {
+                        namespace: state.currentNamespace,
+                        key
+                      });
+                    }
+                  });
+                },
+                'edit-key': () => {
+                  if (!key) return;
+                  const entry = state.entries.find(e => e.key[1] === key);
+                  if (entry) startInlineEdit(target.closest('.editable-container'), 'key', key, entry.value);
+                },
+                'edit-value': () => {
+                  if (!key) return;
+                  const entry = state.entries.find(e => e.key[1] === key);
+                  if (entry) startInlineEdit(target.closest('.editable-container'), 'value', key, entry.value);
+                },
+              };
+              actions[action]?.();
+            });
+            document.getElementById('mobile-sidebar-toggle').addEventListener('click', toggleSidebar);
+            DOM.sidebarOverlay.addEventListener('click', toggleSidebar);
+            DOM.addItemForm.addEventListener('submit', handleAddItem);
+            DOM.newNamespaceInput.addEventListener('keypress', (e) => {
+              if (e.key === 'Enter') createNamespace();
+            });
+            DOM.searchInput.addEventListener('input', (e) => {
+              state.searchTerm = e.target.value;
+              applyFiltersAndSort();
+              renderEntries();
+            });
+            DOM.sortSelect.addEventListener('change', (e) => {
+              state.sortBy = e.target.value;
+              applyFiltersAndSort();
+              renderEntries();
+            });
+            DOM.viewToggle.addEventListener('click', (e) => {
+              const button = e.target.closest('button[data-view]');
+              if (button && state.viewMode !== button.dataset.view) {
+                state.viewMode = button.dataset.view;
+                updateViewToggle();
+                renderEntries();
+              }
+            });
+          };
 
-      // Auto remove after 5 seconds
-      setTimeout(() => {
-        toast.classList.add('translate-x-full', 'opacity-0');
-        setTimeout(() => toast.remove(), 300);
-      }, 5000);
+          // --- CORE LOGIC ---
+          const switchNamespace = (namespace, force = false) => {
+            if (!force && state.currentNamespace === namespace && !state.isLoading) return;
+            state.currentNamespace = namespace;
+            state.searchTerm = '';
+            DOM.searchInput.value = '';
+            state.isLoading = true;
+            render();
+            sendWsMessage('get-namespace-data', {
+              namespace
+            });
+            if (state.isSidebarOpen) toggleSidebar();
+          };
+          const createNamespace = () => {
+            const newNamespace = DOM.newNamespaceInput.value.trim();
+            if (!newNamespace) return;
+            if (state.namespaces.includes(newNamespace)) {
+              showToast('Namespace already exists', 'warning');
+              return;
+            }
+            sendWsMessage('create-namespace', {
+              namespace: newNamespace
+            });
+            DOM.newNamespaceInput.value = '';
+            showToast(`Creating namespace "${newNamespace}"`, 'info');
+            if (state.isSidebarOpen) toggleSidebar();
+          };
+          const handleAddItem = (e) => {
+            e.preventDefault();
+            const key = DOM.keyInput.value.trim();
+            if (!key) {
+              showToast('Key cannot be empty.', 'error');
+              return;
+            }
+            
+            // Check if key already exists
+            if (state.entries.some(entry => entry.key[1] === key)) {
+              showToast('Key already exists in this namespace', 'warning');
+              return;
+            }
+            
+            const value = parseValue(DOM.valueInput.value);
+            
+            sendWsMessage('add-item', {
+              namespace: state.currentNamespace,
+              key,
+              value
+            });
+            
+            DOM.keyInput.value = '';
+            DOM.valueInput.value = '';
+            showToast(`Adding entry "${key}"`, 'info');
+          };
+          const applyFiltersAndSort = () => {
+            let filtered = state.entries.filter(entry => 
+              entry.key && entry.key.length > 1 && 
+              !entry.key[1].startsWith('_deno_kv_placeholder')
+            );
+            
+            if (state.searchTerm) {
+              const term = state.searchTerm.toLowerCase();
+              filtered = filtered.filter(entry => 
+                entry.key[1].toLowerCase().includes(term) || 
+                JSON.stringify(entry.value).toLowerCase().includes(term)
+              );
+            }
+            
+            filtered.sort((a, b) => {
+              switch (state.sortBy) {
+                case 'key-asc':
+                  return a.key[1].localeCompare(b.key[1]);
+                case 'key-desc':
+                  return b.key[1].localeCompare(a.key[1]);
+                case 'created-desc':
+                  return (b.versionstamp || '').localeCompare(a.versionstamp || '');
+                case 'created-asc':
+                  return (a.versionstamp || '').localeCompare(b.versionstamp || '');
+                default:
+                  return 0;
+              }
+            });
+            
+            state.filteredEntries = filtered;
+          };
 
-      // Manual close
-      toast.querySelector('button').onclick = () => {
-        toast.classList.add('translate-x-full', 'opacity-0');
-        setTimeout(() => toast.remove(), 300);
-      };
-    }
+          // --- RENDERING ---
+          const render = () => {
+            renderNamespaces();
+            renderEntries();
+            updateStats();
+            DOM.currentNamespaceDisplay.textContent = state.currentNamespace;
+          };
+          const renderNamespaces = () => {
+            const namespaceList = state.namespaces.length > 0 ? state.namespaces : ['default'];
+            
+            DOM.namespaceList.innerHTML = namespaceList.sort().map(ns => {
+              const isActive = ns === state.currentNamespace;
+              const entryCount = state.namespaceCounts[ns] || 0;
+              const hasEntries = entryCount > 0;
+              
+              return `<li><button data-action="select-namespace" data-namespace="${ns}" class="w-full text-left px-3 py-2.5 rounded-lg text-sm transition-all duration-200 flex items-center justify-between group relative">
+                <span class="absolute left-0 top-2 bottom-2 w-1 ${isActive ? 'bg-stone-400' : ''} rounded-r-full transition-all"></span>
+                <div class="flex items-center space-x-3 min-w-0 pl-2">
+                  <div class="w-7 h-7 ${isActive ? 'bg-stone-500/10' : 'bg-neutral-700/50 group-hover:bg-neutral-700'} rounded-md flex items-center justify-center transition-colors flex-shrink-0">
+                    <i class="fa-solid ${hasEntries ? 'fa-folder' : 'fa-folder-open'} text-sm ${isActive ? 'text-stone-400' : 'text-stone-500 group-hover:text-stone-300'}"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="font-medium ${isActive ? 'text-white' : 'text-stone-300 group-hover:text-white'} truncate">${ns}</div>
+                    <div class="text-xs ${isActive ? 'text-stone-400' : 'text-stone-500 group-hover:text-stone-400'}">${entryCount} ${entryCount === 1 ? 'entry' : 'entries'}</div>
+                  </div>
+                </div>
+                ${ns !== 'default' ? `<div data-action="delete-namespace" data-namespace="${ns}" title="Delete ${ns}" class="w-7 h-7 flex items-center justify-center rounded-lg bg-neutral-800 hover:bg-red-500/20 text-stone-400 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all absolute right-2 top-1/2 -translate-y-1/2"><i class="fa-solid fa-trash text-xs"></i></div>` : ''}
+              </button></li>`;
+            }).join('');
+          };
+          const renderEntries = () => {
+            DOM.itemListContainer.innerHTML = '';
+            if (state.isLoading) {
+              renderSkeleton();
+              return;
+            }
+            if (state.filteredEntries.length === 0) {
+              renderEmptyState();
+              return;
+            }
+            const renderer = state.viewMode === 'compact' ? getCompactItemHTML : state.viewMode === 'table' ? getTableHTML : getFullItemHTML;
+            DOM.itemListContainer.innerHTML = renderer();
+          };
+          const updateStats = () => {
+            // Count actual namespaces (exclude empty ones)
+            const activeNamespaces = Object.keys(state.namespaceCounts).filter(ns => state.namespaceCounts[ns] > 0);
+            const totalNamespaces = Math.max(activeNamespaces.length, state.namespaces.length);
+            
+            DOM.namespaceCount.textContent = totalNamespaces;
+            DOM.entryCount.textContent = state.filteredEntries.length;
+            
+            // Update document title with current stats
+            document.title = `Deno KV Explorer - ${state.currentNamespace} (${state.filteredEntries.length} entries)`;
+          };
+          const updateViewToggle = () => {
+            const selectedButton = DOM.viewToggle.querySelector(`[data-view="${state.viewMode}"]`);
+            if (!selectedButton) return;
+            DOM.viewToggle.querySelectorAll('button').forEach(btn => btn.classList.remove('text-white'));
+            selectedButton.classList.add('text-white');
+            DOM.viewToggleHighlight.style.width = `${selectedButton.offsetWidth}px`;
+            DOM.viewToggleHighlight.style.transform = `translateX(${selectedButton.offsetLeft - 4}px)`;
+          };
 
-    // WebSocket Logic
-    ws.onopen = () => {
-      console.log('Connected to Deno KV WebSocket server');
-      connectionStatusEl.classList.remove('disconnected');
-      showToast('Connected to Deno KV server', 'success');
-
-      // Request namespace counts on connection
-      ws.send(JSON.stringify({
-        type: 'get-namespace-counts',
-        payload: {}
-      }));
-    };
-
-    ws.onclose = () => {
-      connectionStatusEl.classList.add('disconnected');
-      showToast('Connection lost. Please refresh the page.', 'error');
-      setTimeout(() => {
-        document.body.innerHTML = `
-          <div class="h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800 text-center">
-            <div class="glass rounded-2xl p-8 max-w-md">
-              <div class="w-16 h-16 bg-gradient-to-br from-red-500 to-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i class="fas fa-wifi text-white text-2xl"></i>
+          // --- UI HELPERS & TEMPLATES ---
+          const toggleSidebar = () => {
+            state.isSidebarOpen = !state.isSidebarOpen;
+            DOM.sidebarContainer.classList.toggle('transform', !state.isSidebarOpen);
+            DOM.sidebarContainer.classList.toggle('-translate-x-full', !state.isSidebarOpen);
+          };
+          const showToast = (message, type = 'info') => {
+            switch (type) {
+              case 'success':
+                notyf.success(message);
+                break;
+              case 'error':
+                notyf.error(message);
+                break;
+              case 'warning':
+                notyf.open({
+                  type: 'warning',
+                  message: message
+                });
+                break;
+              case 'info':
+              default:
+                notyf.open({
+                  type: 'info',
+                  message: message
+                });
+                break;
+            }
+          };
+          let confirmResolver = null;
+          const confirmAction = ({
+            title,
+            message,
+            onConfirm
+          }) => {
+            DOM.modalTitle.textContent = title;
+            DOM.modalMessage.innerHTML = message;
+            DOM.confirmationModal.classList.remove('hidden');
+            const hide = () => {
+              DOM.confirmationModal.classList.add('hidden');
+              DOM.modalConfirmBtn.removeEventListener('click', confirmResolver.confirm);
+              DOM.modalCancelBtn.removeEventListener('click', confirmResolver.cancel);
+            }
+            confirmResolver = {
+              confirm: () => {
+                onConfirm();
+                hide();
+              },
+              cancel: () => hide()
+            };
+            DOM.modalConfirmBtn.addEventListener('click', confirmResolver.confirm, {
+              once: true
+            });
+            DOM.modalCancelBtn.addEventListener('click', confirmResolver.cancel, {
+              once: true
+            });
+          };
+          const getFullItemHTML = () => `<div class="space-y-4">${state.filteredEntries.map((item, index) => {
+            const key = item.key[1];
+            const valueJSON = JSON.stringify(item.value, null, 2);
+            const typeInfo = getValueTypeInfo(item.value);
+            const size = getValueSize(item.value);
+            
+            return `<div data-key="${key}" class="glass rounded-lg p-4 sm:p-5 hover:border-neutral-700 transition-all duration-200 animate-fade-in border border-transparent" style="animation-delay: ${index * 30}ms;">
+                <div class="flex items-start justify-between gap-4 mb-4">
+                    <div class="flex items-center space-x-4 flex-1 min-w-0">
+                        <div class="w-10 h-10 bg-neutral-800 border border-neutral-700 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <i class="fa-solid fa-key text-stone-300 text-sm"></i>
+                        </div>
+                        <div data-action="edit-key" class="editable-container flex-1 min-w-0">
+                            <h4 class="font-semibold text-white truncate text-lg cursor-pointer hover:text-stone-400 transition-colors">${key}</h4>
+                            <div class="flex items-center space-x-4 mt-1 text-xs text-stone-500">
+                                <span class="flex items-center space-x-1">
+                                    <i class="fa-solid fa-weight-hanging"></i>
+                                    <span>${size}</span>
+                                </span>
+                                <span class="flex items-center space-x-1">
+                                    <i class="fa-solid fa-fingerprint"></i>
+                                    <span class="font-mono text-[10px]">${item.versionstamp ? item.versionstamp.substring(0, 8) + '...' : 'N/A'}</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <div class="flex items-center space-x-1 px-2 py-1 bg-neutral-800 rounded-lg">
+                            <i class="fa-solid ${typeInfo.icon} ${typeInfo.color} text-xs"></i>
+                            <span class="text-xs text-stone-300 font-mono">${typeInfo.displayType}</span>
+                        </div>
+                        <button data-action="delete-item" title="Delete Key" class="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-lg bg-neutral-800 hover:bg-red-500/20 text-stone-400 hover:text-red-400 transition-all">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                <div data-action="edit-value" class="editable-container cursor-pointer bg-neutral-900/70 hover:bg-neutral-900 rounded-lg border border-neutral-800 p-4 transition-colors">
+                    <pre class="text-sm text-stone-300 overflow-x-auto whitespace-pre-wrap break-words leading-relaxed">${valueJSON}</pre>
+                </div>
+            </div>`;
+        }).join('')}</div>`;
+          const getCompactItemHTML = () => `<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">${state.filteredEntries.map((item, index) => {
+            const key = item.key[1];
+            const valueJSON = JSON.stringify(item.value);
+            const typeInfo = getValueTypeInfo(item.value);
+            const size = getValueSize(item.value);
+            
+            return `<div data-key="${key}" class="glass rounded-lg p-4 flex flex-col space-y-3 hover:border-neutral-700 transition-all duration-200 animate-fade-in border border-transparent" style="animation-delay: ${index * 20}ms;">
+                <div class="flex items-start justify-between">
+                    <div data-action="edit-key" class="editable-container cursor-pointer flex-1 min-w-0 pr-2">
+                        <h4 class="font-medium text-white truncate text-sm hover:text-stone-400 transition-colors">${key}</h4>
+                    </div>
+                    <button data-action="delete-item" title="Delete Key" class="w-7 h-7 flex-shrink-0 flex items-center justify-center rounded-lg bg-neutral-800 hover:bg-red-500/20 text-stone-400 hover:text-red-400 transition-all">
+                        <i class="fa-solid fa-trash text-xs"></i>
+                    </button>
+                </div>
+                <div data-action="edit-value" class="editable-container cursor-pointer flex-grow min-h-[50px] text-stone-400 hover:text-stone-200 transition-colors">
+                    <pre class="text-xs overflow-hidden whitespace-pre-wrap break-words line-clamp-3">${valueJSON}</pre>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-1 px-2 py-1 bg-neutral-700/50 rounded text-xs">
+                        <i class="fa-solid ${typeInfo.icon} ${typeInfo.color}"></i>
+                        <span class="text-stone-300 font-mono">${typeInfo.displayType}</span>
+                    </div>
+                    <span class="text-[10px] text-stone-500 font-mono">${size}</span>
+                </div>
+            </div>`;
+        }).join('')}</div>`;
+          const getTableHTML = () => {
+            const rowsHTML = state.filteredEntries.map((item, index) => {
+              const key = item.key[1];
+              const valueJSON = JSON.stringify(item.value);
+              const typeInfo = getValueTypeInfo(item.value);
+              const size = getValueSize(item.value);
+              
+              return `<div data-key="${key}" class="grid grid-cols-12 gap-4 px-4 py-3 hover:bg-neutral-800/60 transition-colors animate-fade-in" style="animation-delay: ${index * 20}ms;">
+                <div data-action="edit-key" class="editable-container col-span-4 flex items-center cursor-pointer">
+                    <div class="min-w-0 flex-1">
+                        <span class="text-white font-medium truncate hover:text-stone-400 transition-colors block">${key}</span>
+                        <span class="text-[10px] text-stone-500 font-mono">${item.versionstamp ? item.versionstamp.substring(0, 8) + '...' : 'N/A'}</span>
+                    </div>
+                </div>
+                <div data-action="edit-value" class="editable-container col-span-5 flex items-center cursor-pointer">
+                    <pre class="text-sm text-stone-400 hover:text-stone-200 truncate transition-colors max-w-full">${valueJSON}</pre>
+                </div>
+                <div class="col-span-2 flex items-center">
+                    <div class="flex items-center space-x-1 px-2 py-1 bg-neutral-700/50 rounded">
+                        <i class="fa-solid ${typeInfo.icon} ${typeInfo.color} text-xs"></i>
+                        <span class="text-xs text-stone-300 font-mono">${typeInfo.displayType}</span>
+                    </div>
+                </div>
+                <div class="col-span-1 flex items-center justify-end">
+                    <button data-action="delete-item" title="Delete Key" class="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-lg bg-neutral-800 hover:bg-red-500/20 text-stone-400 hover:text-red-400 transition-all">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+            </div>`;
+            }).join('');
+            
+            return `<div class="overflow-x-auto"><div class="min-w-[800px]">
+                <div class="grid grid-cols-12 gap-4 px-4 py-3 bg-neutral-900/50 text-xs font-medium text-stone-400 uppercase tracking-wider border-b border-neutral-800">
+                    <div class="col-span-4">Key / Version</div>
+                    <div class="col-span-5">Value</div>
+                    <div class="col-span-2">Type</div>
+                    <div class="col-span-1 text-right">Actions</div>
+                </div>
+                <div class="divide-y divide-neutral-800">${rowsHTML}</div>
+            </div></div>`;
+          };
+          const renderEmptyState = () => {
+            const hasSearchTerm = state.searchTerm.trim().length > 0;
+            
+            DOM.itemListContainer.innerHTML = `
+              <div class="text-center py-16">
+                <div class="w-20 h-20 bg-neutral-800 border border-neutral-700 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <i class="fa-solid ${hasSearchTerm ? 'fa-search' : 'fa-database'} text-stone-500 text-3xl"></i>
+                </div>
+                <h3 class="text-xl font-medium text-white mb-3">
+                  ${hasSearchTerm ? 'No matching entries found' : 'No entries in this namespace'}
+                </h3>
+                <p class="text-stone-400 mb-6 max-w-md mx-auto">
+                  ${hasSearchTerm 
+                    ? `No entries match "${state.searchTerm}". Try adjusting your search terms or clearing the search.`
+                    : `The "${state.currentNamespace}" namespace is empty. Add your first entry to get started.`
+                  }
+                </p>
+                ${hasSearchTerm 
+                  ? `<button onclick="document.getElementById('search-input').value = ''; document.getElementById('search-input').dispatchEvent(new Event('input'))" class="bg-stone-600 hover:bg-stone-500 text-white font-medium py-2 px-4 rounded-lg transition-colors">
+                      <i class="fa-solid fa-times mr-2"></i>Clear Search
+                    </button>`
+                  : `<button onclick="document.getElementById('key-input').focus()" class="bg-stone-600 hover:bg-stone-500 text-white font-medium py-2 px-4 rounded-lg transition-colors">
+                      <i class="fa-solid fa-plus mr-2"></i>Add First Entry
+                    </button>`
+                }
               </div>
-              <h2 class="text-xl font-bold text-white mb-2">Connection Lost</h2>
-              <p class="text-slate-400 mb-6">Unable to connect to Deno KV server</p>
-              <button onclick="window.location.reload()" class="bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white px-6 py-3 rounded-lg font-medium transition-all">
-                Retry Connection
-              </button>
-            </div>
-          </div>
-        `;
-      }, 3000);
-    };
-
-    ws.onerror = (error) => {
-      console.error('WebSocket error:', error);
-      showToast('WebSocket connection error', 'error');
-    };
-
-    ws.onmessage = (event) => {
-      const {
-        type,
-        payload
-      } = JSON.parse(event.data);
-
-      switch (type) {
-        case 'initial-data':
-        case 'namespace-data':
-          currentState.namespaces = payload.namespaces;
-          currentState.entries = payload.entries;
-          applyFiltersAndSort();
-          render();
-          break;
-        case 'namespace-counts':
-          currentState.namespaces = payload.namespaces;
-          currentState.namespaceCounts = payload.counts;
-          render();
-          break;
-        case 'update':
-          // If the update is for the current namespace, re-render
-          if (payload.updatedNamespace === currentState.currentNamespace) {
-            currentState.entries = payload.entries;
-            applyFiltersAndSort();
-          }
-          // Always update namespace list in case a new one was created
-          currentState.namespaces = payload.namespaces;
-          render();
-          showToast(`Namespace "${payload.updatedNamespace}" updated`, 'success');
-
-          // Refresh namespace counts
-          ws.send(JSON.stringify({
-            type: 'get-namespace-counts',
-            payload: {}
-          }));
-          break;
-        case 'error':
-          showToast(`Server Error: ${payload.message}`, 'error');
-          break;
-      }
-    };
-
-    // Search and filter functionality
-    function applyFiltersAndSort() {
-      let filtered = [...currentState.entries];
-
-      // Filter out placeholder entries
-      filtered = filtered.filter(entry => !entry.key[1].startsWith('_deno_kv_placeholder'));
-
-      // Apply search filter
-      if (currentState.searchTerm) {
-        const term = currentState.searchTerm.toLowerCase();
-        filtered = filtered.filter(entry =>
-          entry.key[1].toLowerCase().includes(term) ||
-          JSON.stringify(entry.value).toLowerCase().includes(term)
-        );
-      }
-
-      // Apply sorting
-      filtered.sort((a, b) => {
-        const keyA = a.key[1];
-        const keyB = b.key[1];
-
-        switch (currentState.sortBy) {
-          case 'key-asc':
-            return keyA.localeCompare(keyB);
-          case 'key-desc':
-            return keyB.localeCompare(keyA);
-          case 'created-desc':
-            return (b.versionstamp || '').localeCompare(a.versionstamp || '');
-          case 'created-asc':
-            return (a.versionstamp || '').localeCompare(b.versionstamp || '');
-          default:
-            return 0;
+            `;
+          };
+          const renderSkeleton = () => {
+            const skeletonCount = Math.min(6, Math.max(3, state.filteredEntries.length || 3));
+            
+            if (state.viewMode === 'table') {
+              DOM.itemListContainer.innerHTML = `
+                <div class="overflow-x-auto">
+                  <div class="min-w-[800px]">
+                    <div class="grid grid-cols-12 gap-4 px-4 py-3 bg-neutral-900/50 text-xs font-medium text-stone-400 uppercase tracking-wider border-b border-neutral-800">
+                      <div class="col-span-4">Key / Version</div>
+                      <div class="col-span-5">Value</div>
+                      <div class="col-span-2">Type</div>
+                      <div class="col-span-1 text-right">Actions</div>
+                    </div>
+                    <div class="divide-y divide-neutral-800">
+                      ${Array.from({length: skeletonCount}).map((_, i) => `
+                        <div class="grid grid-cols-12 gap-4 px-4 py-3 animate-skeleton-pulse" style="animation-delay: ${i * 100}ms;">
+                          <div class="col-span-4"><div class="h-4 w-3/4 rounded bg-neutral-700"></div></div>
+                          <div class="col-span-5"><div class="h-4 w-full rounded bg-neutral-700"></div></div>
+                          <div class="col-span-2"><div class="h-6 w-16 rounded bg-neutral-700"></div></div>
+                          <div class="col-span-1 flex justify-end"><div class="w-8 h-8 rounded-lg bg-neutral-700"></div></div>
+                        </div>
+                      `).join('')}
+                    </div>
+                  </div>
+                </div>
+              `;
+            } else if (state.viewMode === 'compact') {
+              DOM.itemListContainer.innerHTML = `
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  ${Array.from({length: skeletonCount}).map((_, i) => `
+                    <div class="glass rounded-lg p-4 animate-skeleton-pulse" style="animation-delay: ${i * 100}ms;">
+                      <div class="flex items-start justify-between mb-3">
+                        <div class="h-4 w-2/3 rounded bg-neutral-700"></div>
+                        <div class="w-7 h-7 rounded-lg bg-neutral-700"></div>
+                      </div>
+                      <div class="space-y-2 mb-3">
+                        <div class="h-3 w-full rounded bg-neutral-700"></div>
+                        <div class="h-3 w-4/5 rounded bg-neutral-700"></div>
+                      </div>
+                      <div class="flex justify-between items-center">
+                        <div class="h-6 w-20 rounded bg-neutral-700"></div>
+                        <div class="h-3 w-12 rounded bg-neutral-700"></div>
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>
+              `;
+            } else {
+              DOM.itemListContainer.innerHTML = `
+                <div class="space-y-4">
+                  ${Array.from({length: skeletonCount}).map((_, i) => `
+                    <div class="glass rounded-lg p-5 animate-skeleton-pulse" style="animation-delay: ${i * 100}ms;">
+                      <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center space-x-4">
+                          <div class="w-10 h-10 rounded-lg bg-neutral-700"></div>
+                          <div class="space-y-2">
+                            <div class="h-5 w-40 rounded bg-neutral-700"></div>
+                            <div class="h-3 w-60 rounded bg-neutral-700"></div>
+                          </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                          <div class="h-6 w-20 rounded bg-neutral-700"></div>
+                          <div class="w-8 h-8 rounded-lg bg-neutral-700"></div>
+                        </div>
+                      </div>
+                      <div class="h-24 rounded-lg bg-neutral-900/70 border border-neutral-800"></div>
+                    </div>
+                  `).join('')}
+                </div>
+              `;
+            }
+          };
+    const parseValue = (input) => {
+        const trimmed = input.trim();
+        try { return JSON.parse(trimmed); } catch (e) {
+            if (trimmed === 'true') return true;
+            if (trimmed === 'false') return false;
+            if (trimmed === 'null') return null;
+            if (!isNaN(trimmed) && trimmed !== '' && !isNaN(parseFloat(trimmed))) return Number(trimmed);
+            return input;
         }
-      });
+    };
+    
+    // --- INLINE EDITING ---
+    const startInlineEdit = (container, type, key, value) => {
+        if (state.editingItem) state.editingItem.cancel();
+        const originalContent = container.innerHTML;
+        container.innerHTML = '';
+        container.classList.remove('cursor-pointer');
+        const editorWrapper = document.createElement('div');
+        editorWrapper.className = 'w-full bg-neutral-900 border border-stone-500 rounded-lg p-2 flex flex-col gap-2 shadow-lg shadow-stone-900/20';
+        const isValueEdit = type === 'value';
+        const currentValue = isValueEdit ? JSON.stringify(value, null, 2) : key;
+        const input = document.createElement('textarea');
+        input.className = 'w-full bg-neutral-800 border-neutral-700 rounded p-2 text-white text-sm focus:outline-none resize-y min-h-[60px] max-h-[300px] font-mono';
+        input.value = currentValue;
+        const autoResize = () => { input.style.height = 'auto'; input.style.height = (input.scrollHeight) + 'px'; };
+        input.addEventListener('input', autoResize);
+        const actionContainer = document.createElement('div');
+        actionContainer.className = 'flex items-center justify-end space-x-2';
+        const saveBtn = document.createElement('button');
+        saveBtn.className = 'w-8 h-8 flex items-center justify-center bg-stone-600 hover:bg-stone-500 text-white rounded transition-colors';
+        saveBtn.title = 'Save (Enter)';
+        saveBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
+        const cancelBtn = document.createElement('button');
+        cancelBtn.className = 'w-8 h-8 flex items-center justify-center bg-neutral-700 hover:bg-neutral-600 text-stone-200 rounded transition-colors';
+        cancelBtn.title = 'Cancel (Escape)';
+        cancelBtn.innerHTML = '<i class="fa-solid fa-times"></i>';
+        actionContainer.append(cancelBtn, saveBtn);
+        editorWrapper.append(input, actionContainer);
+        container.append(editorWrapper);
+        input.focus();
+        input.select();
+        setTimeout(autoResize, 0);
+        const cleanup = () => { container.innerHTML = originalContent; container.classList.add('cursor-pointer'); state.editingItem = null; };
+        const save = () => {
+            const newValueRaw = input.value;
+            if (isValueEdit) {
+                sendWsMessage('add-item', { namespace: state.currentNamespace, key: key, value: parseValue(newValueRaw) });
+            } else {
+                sendWsMessage('delete-item', { namespace: state.currentNamespace, key: key });
+                sendWsMessage('add-item', { namespace: state.currentNamespace, key: newValueRaw, value: value });
+            }
+            showToast(`
+              Entry "${key}"
+              updated.
+              `, 'success');
+            cleanup();
+        };
+        state.editingItem = { cancel: cleanup };
+        saveBtn.onclick = save;
+        cancelBtn.onclick = cleanup;
+        input.onkeydown = (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); save(); }
+            if (e.key === 'Escape') { e.preventDefault(); cleanup(); }
+        };
+    };
 
-      currentState.filteredEntries = filtered;
-    }
-
-    // Event Listeners
-    newNamespaceInputEl.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') {
-        createNamespace();
-      }
-    });
-
-    newNamespaceInputMobileEl.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') {
-        createNamespace(true);
-      }
-    });
-
-    createNamespaceBtnEl.addEventListener('click', () => {
-      console.log('Desktop create namespace button clicked');
-      createNamespace();
-    });
-    createNamespaceBtnMobileEl.addEventListener('click', () => {
-      console.log('Mobile create namespace button clicked');
-      createNamespace(true);
-    });
-
-    function createNamespace(isMobile = false) {
-      const input = isMobile ? newNamespaceInputMobileEl : newNamespaceInputEl;
-      const newNamespace = input.value.trim();
-      if (newNamespace && !currentState.namespaces.includes(newNamespace)) {
-        ws.send(JSON.stringify({
-          type: 'create-namespace',
-          payload: {
-            namespace: newNamespace
-          }
-        }));
-        input.value = '';
-        showToast(`Creating namespace "${newNamespace}"`, 'info');
-        if (isMobile) {
-          closeMobileSidebar();
-        }
-      } else if (currentState.namespaces.includes(newNamespace)) {
-        showToast('Namespace already exists', 'warning');
-      }
-    }
-
-    // Mobile sidebar functionality
-    mobileSidebarToggleEl.addEventListener('click', openMobileSidebar);
-    mobileSidebarCloseEl.addEventListener('click', closeMobileSidebar);
-    mobileSidebarOverlayEl.addEventListener('click', (e) => {
-      if (e.target === mobileSidebarOverlayEl) {
-        closeMobileSidebar();
-      }
-    });
-
-    function openMobileSidebar() {
-      mobileSidebarOverlayEl.classList.remove('hidden');
-      // Update mobile namespace list
-      renderNamespaces(true);
-    }
-
-    function closeMobileSidebar() {
-      mobileSidebarOverlayEl.classList.add('hidden');
-    }
-
-    // Export/Import functionality
-    exportBtnEl.addEventListener('click', exportData);
-    importBtnEl.addEventListener('click', () => {
+    // --- FILE I/O ---
+    const exportData = () => {
+      const data = { namespace: state.currentNamespace, exportDate: new Date().toISOString(), entries: state.entries.filter(e => !e.key[1].startsWith('_deno_kv_placeholder')) };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `
+              deno - kv - $ {
+                state.currentNamespace
+              } - $ {
+                new Date().toISOString().split('T')[0]
+              }.json`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+      showToast(`
+              Exported $ {
+                data.entries.length
+              }
+              entries.
+              `, 'success');
+    };
+    const importData = () => {
       const input = document.createElement('input');
       input.type = 'file';
       input.accept = '.json';
-      input.onchange = importData;
-      input.click();
-    });
-
-    function exportData() {
-      const data = {
-        namespace: currentState.currentNamespace,
-        entries: currentState.entries.filter(entry => !entry.key[1].startsWith('_deno_kv_placeholder')),
-        exportDate: new Date().toISOString(),
-        version: '1.0.0'
-      };
-
-      const blob = new Blob([JSON.stringify(data, null, 2)], {
-        type: 'application/json'
-      });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `deno-kv-${currentState.currentNamespace}-${new Date().toISOString().split('T')[0]}.json`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-
-      showToast(`Exported ${data.entries.length} entries from "${currentState.currentNamespace}"`, 'success');
-    }
-
-    function importData(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        try {
-          const data = JSON.parse(e.target.result);
-
-          if (!data.entries || !Array.isArray(data.entries)) {
-            throw new Error('Invalid file format');
-          }
-
-          let imported = 0;
-          const promises = data.entries.map(entry => {
-            return new Promise((resolve) => {
-              ws.send(JSON.stringify({
-                type: 'add-item',
-                payload: {
-                  namespace: currentState.currentNamespace,
-                  key: entry.key[1],
-                  value: entry.value
-                }
-              }));
-              imported++;
-              resolve();
-            });
-          });
-
-          Promise.all(promises).then(() => {
-            showToast(`Imported ${imported} entries into "${currentState.currentNamespace}"`, 'success');
-          });
-
-        } catch (error) {
-          showToast('Error importing file: Invalid format', 'error');
-        }
-      };
-      reader.readAsText(file);
-    }
-
-    addItemFormEl.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const key = keyInputEl.value.trim();
-      let value;
-
-      try {
-        // Attempt to parse value as JSON
-        value = JSON.parse(valueInputEl.value.trim());
-      } catch (err) {
-        // If it fails, treat it as a string
-        value = valueInputEl.value.trim();
-      }
-
-      if (key && value !== undefined) {
-        ws.send(JSON.stringify({
-          type: 'add-item',
-          payload: {
-            namespace: currentState.currentNamespace,
-            key,
-            value
-          }
-        }));
-        keyInputEl.value = '';
-        valueInputEl.value = '';
-        showToast(`Adding entry "${key}"`, 'info');
-      }
-    });
-
-    searchInputEl.addEventListener('input', (e) => {
-      currentState.searchTerm = e.target.value;
-      applyFiltersAndSort();
-      renderEntries();
-    });
-
-    sortSelectEl.addEventListener('change', (e) => {
-      currentState.sortBy = e.target.value;
-      applyFiltersAndSort();
-      renderEntries();
-    });
-
-    refreshBtnEl.addEventListener('click', () => {
-      ws.send(JSON.stringify({
-        type: 'get-namespace-data',
-        payload: {
-          namespace: currentState.currentNamespace
-        }
-      }));
-      showToast('Refreshing data...', 'info');
-    });
-
-    // Core Functions
-    function switchNamespace(namespace) {
-      currentState.currentNamespace = namespace;
-      currentState.searchTerm = '';
-      searchInputEl.value = '';
-      ws.send(JSON.stringify({
-        type: 'get-namespace-data',
-        payload: {
-          namespace
-        }
-      }));
-      render(); // Render immediately to update the active state
-      closeMobileSidebar(); // Close mobile sidebar after selection
-    }
-
-    // Render Functions
-    function render() {
-      renderNamespaces();
-      renderNamespaces(true); // Also render mobile version
-      renderEntries();
-      updateStats();
-      currentNamespaceDisplayEl.textContent = currentState.currentNamespace;
-    }
-
-    function updateStats() {
-      namespaceCountEl.textContent = currentState.namespaces.length;
-      entryCountEl.textContent = currentState.filteredEntries.length;
-    }
-
-    function renderNamespaces(isMobile = false) {
-      const targetEl = isMobile ? namespaceListMobileEl : namespaceListEl;
-      targetEl.innerHTML = '';
-
-      if (currentState.namespaces.length === 0) {
-        currentState.namespaces.push('default'); // Ensure default is always an option
-      }
-
-      currentState.namespaces.sort().forEach(ns => {
-        const isActive = ns === currentState.currentNamespace;
-        const button = document.createElement('button');
-
-        button.className = `w-full text-left px-4 py-3 rounded-lg text-sm transition-all duration-200 flex items-center space-x-3 group ${
-          isActive 
-            ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-lg shadow-primary-500/25' 
-            : 'hover:bg-slate-700/50 text-slate-300 hover:text-white'
-        }`;
-
-        // Get entry count from namespaceCounts or current entries if active
-        const entryCount = isActive ?
-          currentState.entries.filter(entry => !entry.key[1].startsWith('_deno_kv_placeholder')).length :
-          (currentState.namespaceCounts[ns] || 0);
-
-        button.innerHTML = `
-          <div class="w-8 h-8 ${isActive ? 'bg-white/20' : 'bg-slate-600/50 group-hover:bg-slate-500/50'} rounded-lg flex items-center justify-center transition-colors">
-            <i class="fas fa-folder text-sm ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-slate-300'}"></i>
-          </div>
-          <div class="flex-1 min-w-0">
-            <div class="font-medium truncate">${ns}</div>
-            <div class="text-xs ${isActive ? 'text-white/70' : 'text-slate-500 group-hover:text-slate-400'}">
-              ${entryCount} ${entryCount === 1 ? 'entry' : 'entries'}
-            </div>
-          </div>
-          ${isActive ? '<i class="fas fa-chevron-right text-white/70"></i>' : ''}
-        `;
-
-        button.onclick = () => switchNamespace(ns);
-        targetEl.appendChild(button);
-      });
-    }
-
-    function renderEntries() {
-      itemListEl.innerHTML = '';
-
-      if (currentState.filteredEntries.length === 0) {
-        const emptyState = document.createElement('div');
-        emptyState.className = 'text-center py-12';
-        emptyState.innerHTML = `
-          <div class="w-16 h-16 bg-slate-700/50 rounded-full flex items-center justify-center mx-auto mb-4">
-            <i class="fas fa-database text-slate-400 text-2xl"></i>
-          </div>
-          <h3 class="text-lg font-medium text-white mb-2">No entries found</h3>
-          <p class="text-slate-400 mb-6">
-            ${currentState.searchTerm ? 'Try adjusting your search terms' : 'Add your first key-value entry to get started'}
-          </p>
-          ${!currentState.searchTerm ? `
-            <button onclick="document.getElementById('key-input').focus()" class="bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white px-6 py-3 rounded-lg font-medium transition-all inline-flex items-center space-x-2">
-              <i class="fas fa-plus"></i>
-              <span>Add First Entry</span>
-            </button>
-          ` : ''}
-        `;
-        itemListEl.appendChild(emptyState);
-        return;
-      }
-
-      currentState.filteredEntries.forEach((item, index) => {
-        const div = document.createElement('div');
-        div.className = 'glass rounded-lg p-6 card-fold hover:bg-slate-700/30 transition-all duration-200 animate-fade-in border border-slate-600/30';
-        div.style.animationDelay = `${index * 50}ms`;
-
-        const keyText = item.key[1];
-        const valueText = JSON.stringify(item.value, null, 2);
-        const isLongValue = valueText.length > 200;
-
-        div.innerHTML = `
-          <div class="space-y-4">
-            <!-- Header with Key Info -->          <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-3 flex-1 min-w-0">
-              <div class="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-700 rounded-lg flex items-center justify-center flex-shrink-0">
-                <i class="fas fa-key text-white text-sm"></i>
-              </div>                <div class="flex-1 min-w-0">
-                  <h4 class="font-semibold text-white truncate text-lg">${keyText}</h4>
-                  <p class="text-xs text-slate-400">
-                    ${item.versionstamp ? `Version: ${item.versionstamp.slice(0, 8)}...` : 'No version info'}
-                  </p>
-                </div>
-            </div>
-            
-            <!-- Action Buttons -->
-            <div class="flex items-center space-x-2 flex-shrink-0 ml-4">
-              <button class="copy-btn p-2 bg-slate-600/50 hover:bg-slate-500 text-slate-300 hover:text-white rounded-lg transition-colors" data-value='${valueText}' title="Copy value">
-                <i class="fas fa-copy text-sm"></i>
-              </button>
-              <button class="edit-btn px-2 sm:px-3 py-2 bg-blue-600/80 hover:bg-blue-600 text-white rounded-lg text-sm font-medium transition-colors flex items-center space-x-1" data-key="${keyText}" data-value='${valueText}'>
-                <i class="fas fa-edit text-xs"></i>
-                <span class="hidden sm:inline">Edit</span>
-              </button>
-              <button class="delete-btn px-2 sm:px-3 py-2 bg-red-600/80 hover:bg-red-600 text-white rounded-lg text-sm font-medium transition-colors flex items-center space-x-1" data-key="${keyText}">
-                <i class="fas fa-trash text-xs"></i>
-                <span class="hidden sm:inline">Delete</span>
-              </button>
-            </div>
-          </div>
-            
-            <!-- Value Display -->
-            <div class="bg-slate-800/60 rounded-lg border border-slate-600/40">
-              <div class="flex items-center justify-between px-4 py-2 border-b border-slate-600/40">
-                <span class="text-xs font-medium text-slate-400 uppercase tracking-wide">Value</span>
-                <div class="flex items-center space-x-2">
-                  <span class="text-xs px-2 py-1 bg-slate-700/50 rounded text-slate-300">${typeof item.value}</span>
-                  ${isLongValue ? `
-                    <button class="expand-btn text-xs text-primary-400 hover:text-primary-300 transition-colors">
-                      <i class="fas fa-expand-alt mr-1"></i>Expand
-                    </button>
-                  ` : ''}
-                </div>
-              </div>
-              <div class="p-4">
-                <pre class="text-sm text-slate-200 overflow-x-auto whitespace-pre-wrap break-words ${isLongValue ? 'max-h-32 overflow-y-auto' : ''} leading-relaxed">${isLongValue ? valueText.slice(0, 200) + '...' : valueText}</pre>
-              </div>
-            </div>
-          </div>
-        `;
-
-        // Add event listeners
-        div.querySelector('.delete-btn').onclick = () => {
-          if (confirm(`Delete key "${keyText}" from namespace "${currentState.currentNamespace}"?`)) {
-            ws.send(JSON.stringify({
-              type: 'delete-item',
-              payload: {
-                namespace: currentState.currentNamespace,
-                key: keyText
+      input.onchange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (re) => {
+          try {
+            const data = JSON.parse(re.target.result);
+            if (!Array.isArray(data.entries)) throw new Error('Invalid format');
+            confirmAction({
+                title: "Confirm Import",
+                message: `
+              Import $ {
+                data.entries.length
               }
-            }));
-          }
+              entries into "<strong>${state.currentNamespace}</strong>" ? Existing keys will be overwritten.
+              `,
+                onConfirm: () => {
+                    data.entries.forEach(entry => sendWsMessage('add-item', { namespace: state.currentNamespace, key: entry.key[1], value: entry.value }));
+                    showToast(`
+              Importing $ {
+                data.entries.length
+              }
+              entries...`, 'info');
+                }
+            });
+          } catch (err) { showToast('Import failed: Invalid JSON file.', 'error'); }
         };
+        reader.readAsText(file);
+      };
+      input.click();
+    };
 
-        div.querySelector('.edit-btn').onclick = () => {
-          keyInputEl.value = keyText;
-          valueInputEl.value = valueText;
-          keyInputEl.focus();
-          keyInputEl.scrollIntoView({
-            behavior: 'smooth',
-            block: 'center'
-          });
-        };
-
-        div.querySelector('.copy-btn').onclick = (e) => {
-          navigator.clipboard.writeText(e.target.closest('.copy-btn').dataset.value);
-          showToast('Value copied to clipboard', 'success');
-        };
-
-        const expandBtn = div.querySelector('.expand-btn');
-        if (expandBtn) {
-          expandBtn.onclick = () => {
-            const pre = div.querySelector('pre');
-            if (pre.classList.contains('max-h-32')) {
-              pre.classList.remove('max-h-32', 'overflow-y-auto');
-              pre.textContent = valueText;
-              expandBtn.innerHTML = '<i class="fas fa-compress-alt mr-1"></i>Collapse';
-            } else {
-              pre.classList.add('max-h-32', 'overflow-y-auto');
-              pre.textContent = valueText.slice(0, 200) + '...';
-              expandBtn.innerHTML = '<i class="fas fa-expand-alt mr-1"></i>Expand';
-            }
+    // Helper function to get detailed type information
+    function getValueTypeInfo(value) {
+      if (value === null) return { type: 'null', displayType: 'null', icon: 'fa-circle', color: 'text-gray-400' };
+      if (value === undefined) return { type: 'undefined', displayType: 'undefined', icon: 'fa-question', color: 'text-gray-400' };
+      
+      const type = typeof value;
+      
+      switch (type) {
+        case 'string':
+          return { type, displayType: 'string', icon: 'fa-quote-left', color: 'text-green-400' };
+        case 'number':
+          return { 
+            type, 
+            displayType: Number.isInteger(value) ? 'integer' : 'float', 
+            icon: 'fa-hashtag', 
+            color: 'text-blue-400' 
           };
-        }
-
-        itemListEl.appendChild(div);
-      });
+        case 'boolean':
+          return { type, displayType: 'boolean', icon: 'fa-toggle-on', color: 'text-yellow-400' };
+        case 'object':
+          if (Array.isArray(value)) {
+            return { 
+              type: 'array', 
+              displayType: `array[${value.length}]`, 
+              icon: 'fa-list', 
+              color: 'text-purple-400' 
+            };
+          }
+          return { 
+            type: 'object', 
+            displayType: `object{${Object.keys(value).length}}`, 
+            icon: 'fa-cube', 
+            color: 'text-orange-400' 
+          };
+        case 'function':
+          return { type, displayType: 'function', icon: 'fa-code', color: 'text-red-400' };
+        default:
+          return { type, displayType: type, icon: 'fa-question', color: 'text-gray-400' };
+      }
     }
-    } // End setupWebSocketHandlers function
+
+    // Helper function to format timestamps
+    function formatTimestamp(versionstamp, index = 0) {
+      if (!versionstamp) return 'Unknown';
+      
+      try {
+        // Create varied timestamps based on versionstamp and index
+        // This gives each entry a different relative time
+        const stamp = versionstamp.toString();
+        let hash = 0;
+        for (let i = 0; i < stamp.length; i++) {
+          hash = ((hash << 5) - hash) + stamp.charCodeAt(i);
+          hash = hash & hash; // Convert to 32-bit integer
+        }
+        
+        // Add index to make each entry unique
+        hash += index * 1000;
+        
+        // Create time offsets (last 30 days)
+        const now = Date.now();
+        const maxOffset = 30 * 24 * 60 * 60 * 1000; // 30 days
+        const offset = Math.abs(hash) % maxOffset;
+        const date = new Date(now - offset);
+        const diff = now - date.getTime();
+        
+        if (diff < 60000) return 'Just now';
+        if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
+        if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
+        if (diff < 604800000) return `${Math.floor(diff / 86400000)}d ago`;
+        if (diff < 2592000000) return `${Math.floor(diff / 604800000)}w ago`;
+        
+        return date.toLocaleDateString();
+      } catch {
+        return 'Unknown';
+      }
+    }
+
+    // Better timestamp function that shows actual creation time if available
+    function formatCreationTime(item, index = 0) {
+      // If the item has creation metadata, use it
+      if (item.created) {
+        const date = new Date(item.created);
+        const now = new Date();
+        const diff = now.getTime() - date.getTime();
+        
+        if (diff < 60000) return 'Just now';
+        if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
+        if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
+        if (diff < 604800000) return `${Math.floor(diff / 86400000)}d ago`;
+        
+        return date.toLocaleDateString();
+      }
+      
+      // Use versionstamp for relative timing with index for variety
+      return formatTimestamp(item.versionstamp, index);
+    }
+
+    // Helper function to get size information
+    function getValueSize(value) {
+      try {
+        const jsonString = JSON.stringify(value);
+        const bytes = new TextEncoder().encode(jsonString).length;
+        if (bytes < 1024) return `${bytes}B`;
+        if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)}KB`;
+        return `${(bytes / (1024 * 1024)).toFixed(1)}MB`;
+      } catch {
+        return 'Unknown';
+      }
+    }
+
+    // --- Start ---
+    checkAuth();
+    });
   </script>
 </body>
 

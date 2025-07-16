@@ -74,21 +74,26 @@ const server = Bun.serve({
         const sessionId = generateSessionId();
         authenticatedSessions.add(sessionId);
         
-        return new Response(JSON.stringify({ 
+        const response = { 
           success: true, 
           sessionId,
           requiresPassword: !!PASSWORD 
-        }), {
+        };
+        
+        return new Response(JSON.stringify(response), {
           headers: { 
             'Content-Type': 'application/json',
             'Set-Cookie': `session=${sessionId}; HttpOnly; SameSite=Strict`
           }
         });
       } else {
-        return new Response(JSON.stringify({ 
+        const response = { 
           success: false, 
           message: 'Invalid password' 
-        }), {
+        };
+        console.log('Auth failed response:', response);
+        
+        return new Response(JSON.stringify(response), {
           status: 401,
           headers: { 'Content-Type': 'application/json' }
         });
@@ -192,6 +197,29 @@ const server = Bun.serve({
                   payload: { ...data, updatedNamespace: payload.namespace },
                 })
               );
+            }
+            break;
+          case "delete-namespace":
+            if (payload.namespace && payload.namespace !== 'default') {
+              // Delete all entries in the namespace
+              const entries = await Array.fromAsync(kv.list({ prefix: [payload.namespace] }));
+              for (const entry of entries) {
+                await kv.delete(entry.key);
+              }
+              console.log(`Deleted namespace: ${payload.namespace}`);
+              
+              // Send updated namespace counts
+              const countsData = await getNamespaceCounts();
+              server.publish(
+                "kv-updates",
+                JSON.stringify({ type: "namespace-counts", payload: countsData })
+              );
+              
+              // Send success response
+              ws.send(JSON.stringify({ 
+                type: "namespace-deleted", 
+                payload: { namespace: payload.namespace } 
+              }));
             }
             break;
         }
